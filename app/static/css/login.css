@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-image: url('/static/imagenes/fondo.png'); /* Ruta absoluta para la imagen */
+  background-size: 60%;  
+  background-repeat: no-repeat; 
+  background-position: center; 
+}
+
+.container {
+  text-align: center;
+}
+
+.container .titulo {
+  margin-bottom: 30px;
+}
+
+.container .login {
+  background-color: #af9500;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.container .login form {
+  display: revert;
+  width: 250px;
+}
+
+.container .login form label {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.container .login form input {
+  padding: 10px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.container .login form button {
+  padding: 10px 20px;
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.container .login form button:hover {
+  background-color: #0055b6;
+}
+
+.links {
+  position: relative;
+  margin-top: 10%;
+}
+
+a{
+  color: white;
+  text-decoration: auto;
+  font-size: 1.1vw;
+}
+
+h2 {
+  position: relative;  
+  color: white;
+  margin-top: -5%;
+}

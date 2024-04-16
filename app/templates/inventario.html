@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Inventario</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/inventario.css' %}">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/recetas/">Recetas</a></li>
+                <li><a href="/bitacora/">Bitácora</a></li>
+            </ul>
+        </nav>
+        <div class="search-bar">
+            <form action="#" method="GET">
+                <input type="text" name="search" placeholder="Buscar...">
+                <button type="submit">Buscar</button>
+            </form>
+        </div>
+        <h2>Inventario UUSMB</h2>
+        <table class="default">
+            <tr>
+                <th>
+                    <input type="text" name="filter_id" placeholder="ID">
+                </th>
+                <th>
+                    <input type="text" name="filter_nombre" placeholder="Nombre">
+                </th>
+                <th>
+                    <input type="text" name="filter_contenido" placeholder="Contenido">
+                </th>
+                <th>
+                    <input type="text" name="filter_unidad" placeholder="UM">
+                </th>
+                <th>
+                    <input type="text" name="filter_id" placeholder="stock">
+                </th>
+                <th>
+                    <input type="text" name="filter_nombre" placeholder="marca">
+                </th>
+                <th>
+                    <input type="text" name="filter_contenido" placeholder="CB">
+                </th>
+                <th>
+                    <input type="text" name="filter_unidad" placeholder="NO.ref">
+                </th>
+                <th>
+                    <input type="text" name="filter_id" placeholder="CAD">
+                </th>
+                <th>
+                    <input type="text" name="filter_nombre" placeholder="lote">
+                </th>
+                <th>
+                    <input type="text" name="filter_contenido" placeholder="recep">
+                </th>
+                <th>
+                    <input type="text" name="filter_unidad" placeholder="cantidad">
+                </th>
+                <th>
+                    <input type="text" name="filter_id" placeholder="precio">
+                </th>
+                <th>
+                    <input type="text" name="filter_nombre" placeholder="cod">
+                </th>
+                <th>
+                    <input type="text" name="filter_contenido" placeholder="tipo">
+                </th>
+                <th>
+                    <input type="text" name="filter_unidad" placeholder="equipo">
+                </th>
+                <th>
+                    <input type="text" name="filter_id" placeholder="nivel">
+                </th>
+                <th>
+                    <input type="text" name="filter_nombre" placeholder="status">
+                </th>
+            </tr>
+            <tr>
+                <th>Id_item</th>
+                <th>nombre</th>
+                <th>contenido</th>
+                <th>unidad de medida</th>
+                <th>stock</th>
+                <th>marca</th>
+                <th>codigo de barras</th>
+                <th>no_referencia</th>
+                <th>fecha caducidad</th>
+                <th>lote</th>
+                <th>fecha recepcion</th>
+                <th>cantidad</th>
+                <th>precio_uni</th>
+                <th>cod</th>
+                <th>tipo</th>
+                <th>equipo</th>
+                <th>nivel</th>
+                <th>status</th>
+            
+            </tr>
+            {% for _ in "1234567" %}
+            <tr>
+                <td>1</td>
+                <td>illumina</td>
+                <td>4</td>
+                <td>unidad</td>
+                <td>17</td>
+                <td>nanoport</td>
+                <td>4452382</td>
+                <td>A128U19</td>
+                <td>27/04/24</td>
+                <td>2384hj</td>
+                <td>21/12/23</td>
+                <td>3</td>
+                <td>10.5</td>
+                <td>no aplica</td>
+                <td>reactivo</td>
+                <td>A35</td>
+                <td>P3</td>
+                <td>disponible</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario UUSMB</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/inventario/">Inventario</a></li>
+                <li><a href="/recetas/">Recetas</a></li>
+                <li><a href="/bitacora/">Bitácora</a></li>
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Cerrar sesión</a></div>
+                </li>
+            </ul>
+        </nav>
+        <div class="bienvenida">
+            <h1>BIENVENIDO {{ request.user.username.upper }}</h1>
+            <h2>sistema de Inventario</h2>
+            <img src="{% static 'imagenes/video.png' %}" alt="logo de la uusmb" class="video">
+        </div>
+        <img src="{% static 'imagenes/uusmb.png' %}" alt="logo de la uusmb" class="logo">
+
+    
+        <p>______________________________________________________________________________________</p><br><br>
+        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sequi ut eius eveniet fugit<br>
+        odio amet fugiat molestias consequatur vero, repellat numquam tempore minima<br> officia enim aspernatur accusamus
+        ipsam voluptas veniam!</p>
+    </div>
+</body>
+</html>

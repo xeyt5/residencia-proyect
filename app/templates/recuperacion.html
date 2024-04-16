@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperación de Contraseña</title>
+</head>
+<body>
+    <h2>Recuperación de Contraseña</h2>
+    <form method="post">
+        {% csrf_token %}
+        <label for="username">Nombre de Usuario:</label><br>
+        <input type="text" id="username" name="username" required><br>
+
+        <label for="pregunta_recuperacion">Pregunta de Recuperación:</label><br>
+        <select id="pregunta_recuperacion" name="pregunta_recuperacion" required>
+            <option value="color">Color favorito</option>
+            <option value="animal">Animal favorito</option>
+            <option value="apodo">Apodo de la infancia</option>
+        </select><br>
+
+        <label for="respuesta_recuperacion">Respuesta de Recuperación:</label><br>
+        <input type="text" id="respuesta_recuperacion" name="respuesta_recuperacion" required><br>
+
+        <button type="submit">Recuperar Contraseña</button>
+    </form>
+
+    {% if contrasena_recuperada %}
+    <div>
+        <label for="contrasena_recuperada">Contraseña Recuperada:</label><br>
+        <input type="text" id="contrasena_recuperada" name="contrasena_recuperada" value="{{ contrasena_recuperada }}" readonly>
+    </div>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,22 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/registro.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="login"> 
+            <form method="post" action="">
+                <h2>registro de usuario</h2>
+                {% csrf_token %}
+                {{form}}
+                <input type="submit" value="registrar">
+            </form>
+            <a href="/">regresar</a>
+        </div>
+    </div>
+</body>
+</html>

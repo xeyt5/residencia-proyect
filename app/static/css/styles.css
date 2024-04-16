@@ -1,0 +1,106 @@
+body{
+    margin: 0;
+    padding: 0%;
+    font-family: Arial, sans-serif;
+  }
+  
+  .bienvenida {
+    text-align: center;
+    position: fixed;
+    margin-left: 6%;
+    margin-top: 1%;
+    font-size: 1.7vw;
+}
+
+
+p {
+    position: fixed;
+    color: #000000;
+    font-size: 1.2vw;
+    width: 90%;
+    font-family: system-ui;
+    font-size: 1.2vw;
+    margin-top: 37%;
+    margin-left: 1%;
+}
+  
+  .logo {
+    position: fixed;
+    width: 40%;
+    height: auto;
+    top: 39%;
+    left: 53%;
+}
+
+.video {
+    width: 60%;
+}
+
+  
+
+  .container {
+      width: 100%; /* Ancho máximo del contenido */
+      margin: auto; /* Centra el contenido horizontalmente */
+      overflow: hidden;
+      display: auto;
+      position: relative;
+  }
+  .navbar {
+      background-color: #8E7A00;
+      overflow: hidden;
+      margin: auto; /* Centra la barra de navegación */
+  }
+  .navbar ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* Alinea el texto al centro */
+      display: flex;
+  }
+  
+  .navbar ul li {
+      margin-right: 10px;
+  }
+
+  .navbar ul li a {
+    /* Estilos para los enlaces de la barra de navegación */
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+  .navbar ul li a:hover {
+      background-color: #ddd;
+      color: black;
+  }
+
+  .sidebar {
+      float: left;
+      width: 30%;
+      padding: 20px;
+      background-color: #f1f1f1;
+  }
+  .main {
+      float: left;
+      width: 70%;
+      padding: 20px;
+  }
+
+  .cerrar-sesion {
+    margin-left: auto; /* Empuja el elemento .cerrar hacia abajo */
+}
+.cerrar-sesion a{
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.cerrar-sesion a:hover{
+    background-color: #ddd;
+    color: #000;
+}
+

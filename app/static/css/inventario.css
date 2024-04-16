@@ -1,0 +1,86 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+table.default {
+    width: calc(100% - 80px); /* Ancho de la tabla */
+    margin: 20px auto; /* Centra la tabla y agrega margen superior e inferior */
+    border-collapse: collapse;
+    margin-top: 60px; /* Espacio superior */
+
+}
+
+table.default th,
+table.default td {
+    padding: 4px;
+    text-align: center;
+    border-bottom: 2px solid #000000; /* Línea divisoria */
+}
+
+/* Estilos para dispositivos móviles */
+@media only screen and (max-width: 600px) {
+    table.default {
+        width: 100%;
+    }
+
+    table.default th,
+    table.default td {
+        padding: 6px;
+        font-size: 14px;
+    }
+}
+
+h2{
+    text-align: center;
+    margin: auto;
+    margin-top: 20px;
+}
+
+.search-bar {
+    margin-top: 3%;
+    position: fixed;
+    margin-left: 74%;
+}
+.search-bar form {
+    display: flex;
+    align-items: center;
+    width: 300px;
+    background-color: #f2f2f2;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.search-bar input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+    background: none;
+}
+.search-bar button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #1696ff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.search-bar button:hover {
+    background-color: #45a049;
+}
+
+/* Estilos para los filtros */
+table.default input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    transition: border-color 0.3s;
+}
+table.default input[type="text"]:focus {
+    border-color: #4CAF50;
+}

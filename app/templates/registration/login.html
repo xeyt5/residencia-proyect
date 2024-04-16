@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+</head>
+<body class='fondo'>
+    <div class="container">
+        <div class="login"> 
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <h2>Inicio de sesión</h2>
+                <label for="username">
+                    Usuario:
+                    <input type="text" name="username">
+                </label>
+                <label for="password">
+                    Contraseña:
+                    <input type="password" name="password">
+                </label>
+                <button type="submit">Iniciar Sesión</button>
+                <div class="links">
+                    <a href="/registro/">registrarse</a> ||
+                    <a href="/recuperar/">olvide clave</a> 
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

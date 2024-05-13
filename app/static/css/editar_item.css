@@ -1,0 +1,67 @@
+.container {
+    background-color: #f7f7f7;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  input[type="text"], input[type="date"], select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+  }
+
+  input[type="submit"] {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+    margin-top: 20px;
+  }
+
+  input[type="text"]:focus, input[type="date"]:focus, select:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Pantallas pequeñas (teléfonos móviles) */
+@media (max-width: 480px) {
+    .container {
+       width: 90%;
+     }
+    .column-left,.column-right {
+       flex-basis: 100%;
+     }
+     label {
+       width: 100%;
+       text-align: left;
+     }
+     input[type="text"], input[type="date"], select {
+       flex-grow: 1;
+       width: 100%;
+     }
+   }
+   
+   /* Pantallas medianas (tablets) */
+   @media (min-width: 481px) and (max-width: 768px) {
+    .container {
+       width: 80%;
+     }
+    .column-left,.column-right {
+       flex-basis: 50%;
+     }
+   }
+

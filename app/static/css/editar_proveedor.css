@@ -1,0 +1,107 @@
+body{
+    margin: 0;
+    padding: 0%;
+    font-family: Arial, sans-serif;
+  }
+.navbar {
+  background-color: #8E7A00;
+  overflow: hidden;
+  margin: auto;
+  position: fixed; /* Hace que la barra de navegación sea fija */
+  top: 0; /* La fija en la parte superior */
+  left: 0;
+  width: 100%; /* Ocupa todo el ancho */
+}
+
+.navbar ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.navbar ul li {
+  margin-right: 10px;
+}
+
+.navbar ul li a {
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+.navbar ul li a.cerrar-sesion {
+  position: absolute;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  right: 0;
+}
+
+.navbar ul li a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.sidebar {
+  float: left;
+  width: 30%;
+  padding: 20px;
+  background-color: #f1f1f1;
+  margin-top: 60px; /* Ajusta el margen superior para evitar que se solape con la barra de navegación */
+}
+
+.main {
+  float: left;
+  width: 70%;
+  padding: 20px;
+  margin-top: 60px; /* Ajusta el margen superior para evitar que se solape con la barra de navegación */
+}
+
+.navbar ul li a.cerrar-sesion:hover{
+  background-color: #ff0000;
+  color: #000000;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+form {
+    width: 50%; /* Make the form 50% of the page width */
+    margin: 0 auto; /* Center the form */
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+label {
+    display: block;
+    margin-bottom: 5px; 
+}
+input[type="text"], input[type="email"], textarea, input[type="url"] {
+    width: 96%;
+    padding: 10px;
+    margin-bottom: 10px; 
+    border: 1px solid #ccc;
+}
+
+#id_descripcion{
+    height: 80px;
+}
+
+button[type="submit"] {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button[type="submit"]:hover {
+    background-color: #3e8e41;
+}

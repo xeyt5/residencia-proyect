@@ -1,0 +1,156 @@
+body{
+    margin: 0;
+    padding: 0%;
+    font-family: Arial, sans-serif;
+  }
+
+.navbar {
+    background-color: #8E7A00;
+    overflow: hidden;
+    margin: auto;
+    position: fixed; 
+    top: 0; /* La fija en la parte superior */
+    left: 0;
+    width: 100%; /* Ocupa todo el ancho */
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+}
+
+.navbar ul li {
+    margin-right: 10px;
+}
+
+.navbar ul li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+.navbar ul li a.cerrar-sesion {
+    position: absolute;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    right: 0;
+}
+
+.navbar ul li a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.sidebar {
+    float: left;
+    width: 30%;
+    padding: 20px;
+    background-color: #f1f1f1;
+    margin-top: 60px; /* Ajusta el margen superior para evitar que se solape con la barra de navegación */
+}
+
+.main {
+    float: left;
+    width: 70%;
+    padding: 20px;
+    margin-top: 60px; /* Ajusta el margen superior para evitar que se solape con la barra de navegación */
+}
+
+.navbar ul li a.cerrar-sesion:hover{
+    background-color: #ff0000;
+    color: #000000;
+  }
+
+
+.eliminar {
+    background-color: rgb(158, 0, 0); 
+    border-radius: 12px;
+    cursor: pointer; 
+
+}
+
+.eliminar img {
+    width: 20px; 
+    height: 20px; 
+}
+
+.eliminar:hover{
+    background-color: #fd8060;
+}
+
+
+table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+    cursor: default;
+    border: rgb(0, 0, 0) 2px solid;
+
+}
+
+th, td {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid rgba(194, 192, 192, 0.356)
+}
+
+th {
+    background-color: #8E7A00;
+    color: rgb(0, 0, 0);
+    position: sticky;
+    top: 0;
+}
+
+
+tr:hover {
+    background-color: #bebdbd9f;
+}
+
+
+
+.editar {
+    background-color: blue;
+    border-radius: 12px;
+    cursor: pointer; 
+    padding: 0; 
+    width: 32px;
+}
+
+.editar img {
+    width: 20px; 
+    height: 20px; 
+}
+.editar:hover{
+    background-color: #2788f7;
+}
+
+h1{
+    text-align: center;
+    font-size: xxx-large;
+}
+
+.insertar{
+    width: 45px;
+    position: static;
+    margin-right: 1%;
+    cursor: pointer;
+    background-color: rgb(67, 134, 0);
+    border-radius: 6px;
+    margin-bottom: 1%;
+    margin-left: 2%;
+}
+
+.insertar:hover{
+    background-color: greenyellow;
+}
+
+.insertar-imagen{
+    width: 20px;
+    height: 20px;
+}

@@ -3,20 +3,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar Sesión</title>
+    <title>Registro</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/registro.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/barra.css' %}">
+
 </head>
 <body>
     <div class="container">
         <div class="login"> 
             <form method="post" action="">
-                <h2>registro de usuario</h2>
+                <h2>Registro de usuario</h2>
                 {% csrf_token %}
                 {{form}}
                 <input type="submit" value="registrar">
             </form>
-            <a href="/">regresar</a>
         </div>
+    </div>
+    <div class="navbar">
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/acerca/">Acerca de</a></li>
+            <li><a href="#">Contáctanos</a></li>
+            <li><a href="http://www.uusmb.unam.mx/">Página de la Unidad</a></li>
+            <li><a href="/manual/">manual de usuario</a></li>
+        </ul>
     </div>
 </body>
 </html>

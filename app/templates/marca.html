@@ -1,0 +1,130 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Marcas</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/marca.css' %}">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {%if perms.app.view_item%}
+                <li><a href="/inventario/">Inventario</a></li>
+                {%endif%}
+                <li><a href="/recetas/">Recetas</a></li>
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {%if perms.app.view_Marca%}
+                <li><a href="/marca/">marca</a></li>
+                {%endif%}
+                {%if perms.app.view_Proveedor%}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {%endif%}
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+                </li>
+            </ul>
+        </nav>
+        <br><br><br><br>
+        <h1>Marcas</h1>
+        {%if perms.app.add_marca%}
+        <button type="button" class='insertar' onclick="window.location.href='{% url 'marcaregistro'%}'" alt="registrar marca">
+            <img src="{% static 'imagenes/insertar.png' %}" class="insertar-imagen" alt="registrar provedor"></button>
+        {%endif%}
+        <table class="default">
+            <thead>
+                <tr>
+                    <th></th> 
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Descripcion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for marca in Marcas %}
+                <tr>
+                    <td>
+                        {% if perms.app.change_Proveedor %}
+                        <button type="button" onclick="window.location.href='{% url 'editar_marca' marca.id %}'" class="editar">
+                            <img src="{% static 'imagenes/editar.png' %}" alt="Editar">
+                        </button>                        
+                        {% endif %}
+                        <br><br>
+                        {% if perms.app.delete_marca %}
+                        <button type="button" class="eliminar" data-item-id="{{ marca.id }}">
+                            <img src="{% static 'imagenes/borrar.png' %}">
+                        {% endif %}
+                    </td>
+                    <td>{{ marca.id }}</td>
+                    <td>{{ marca.nombre }}</td>
+                    <td>{{ marca.descripcion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.querySelectorAll('.eliminar').forEach(button => {
+            button.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                Swal.fire({
+                    title: "¿Estas seguro de que quieres eliminarlo?",
+                    text: "Este cambio no se puede revertir este cambio",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#FF1401",
+                    cancelButtonColor: "#458CFA",
+                    confirmButtonText: "eliminar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const csrftoken = getCookie('csrftoken');
+                        fetch(`/eliminar-marca/${itemId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrftoken,
+                                'Content-Type': 'application/json',
+                            },
+                        }).then(response => {
+                            if (response.ok) {
+                                Swal.fire({
+                                    title: "¡Eliminado!",
+                                    text: "Tu ítem ha sido eliminado.",
+                                    icon: "success"
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                console.error('Error al eliminar el ítem');
+                            }
+                        }).catch(error => {
+                            console.error('Error al eliminar el ítem:', error);
+                        });
+                    }
+                });
+            });
+        });
+    
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+    
+</body>
+</html>

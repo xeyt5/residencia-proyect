@@ -8,9 +8,10 @@ body {
   height: 100vh;
   margin: 0;
   background-image: url('/static/imagenes/fondo.png'); /* Ruta absoluta para la imagen */
-  background-size: 60%;  
+  background-size: 50%;  
   background-repeat: no-repeat; 
   background-position: center; 
+  position: static;
 }
 
 .container {
@@ -22,11 +23,12 @@ body {
 }
 
 .container .login {
-  background-color: #af9500;
+  background-color: #ad9300;
   padding: 40px;
-  border-radius: 20px;
+  border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+  position: static;
 }
 
 .container .login form {
@@ -61,6 +63,7 @@ body {
   background-color: #0055b6;
 }
 
+
 .links {
   position: relative;
   margin-top: 10%;
@@ -72,8 +75,42 @@ a{
   font-size: 1.1vw;
 }
 
+a:hover{
+  color: rgb(0, 0, 0);
+}
+
 h2 {
   position: relative;  
-  color: white;
+  color: rgb(0, 0, 0);
   margin-top: -5%;
 }
+
+.uusmb{
+  width: 11%;
+  position: fixed;
+  top: 0;
+  margin-top: 3.4%;
+  right: 0;
+  margin-right: 10%;
+}
+
+.unam{
+  position: fixed;
+  width: 11%;
+  top: 0;
+  margin-top: 3.2%;
+  left: 0;
+  margin-left: 10%;
+}
+
+.laboratorio{
+  position: fixed;
+  width: 15%;
+  top: 0;
+  margin-top: 2.1%;
+}
+
+p{
+  display: none;
+}
+

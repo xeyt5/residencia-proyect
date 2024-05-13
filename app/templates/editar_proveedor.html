@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Proveedor</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_proveedor.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="/perfil/">Perfil</a></li>
+            <li><a href="/">Inicio</a></li>
+            {%if perms.app.view_item%}
+            <li><a href="/inventario/">Inventario</a></li>
+            {%endif%}
+            <li><a href="/recetas/">Recetas</a></li>
+            <li><a href="/bitacora/">Bitácora</a></li>
+            {%if perms.app.view_Marca%}
+            <li><a href="/marca/">marca</a></li>
+            {%endif%}
+            {%if perms.app.view_proveedor%}
+            <li><a href="/proveedores/">Proveedores</a></li>
+            {%endif%}
+            <li>
+                <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+            </li>
+        </ul>
+    </nav>
+    <br><br><br>
+    <h1>Editar Proveedor</h1>
+    <br><br>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar Cambios</button>
+    </form>
+</body>
+</html>

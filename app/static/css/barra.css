@@ -1,0 +1,41 @@
+/* Estilos para la barra de navegación */
+.navbar {
+    background-color: #af9500;
+    width: 100%;
+    position: fixed;
+    top: 0; /* Coloca la barra de navegación en la parte inferior */
+    height: 5.1%;
+    left: 0;
+  }
+  
+  .navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+    height: 30px;
+    font-size: 0.1vw;
+  }
+  
+  .navbar ul li {
+    display: inline-block; /* Muestra los elementos en línea */
+    
+  }
+  
+  .navbar ul li a {
+    display: inline-block; /* Muestra los enlaces en línea */
+    padding: 10px;
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    font-size: 1.1vw;
+  }
+  
+  .navbar ul li a:hover {
+    background-color: #ffffff;
+  }
+  
+  /* Estilos para el contenido */
+  .content {
+    padding-bottom: 50px; /* Ajusta el espacio inferior para evitar que el contenido se solape con la barra de navegación */
+  }

@@ -1,0 +1,116 @@
+/* Estilos para el cuerpo de la página */
+body {
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-image: url('/static/imagenes/fondo.png'); /* Ruta absoluta para la imagen */
+    background-size: 60%;  
+    background-repeat: no-repeat; 
+    background-position: center; 
+}
+/* Estilos para el contenido del formulario */
+.content {
+    padding-bottom: 50px; /* Ajusta el espacio inferior para evitar que el contenido se solape con la barra de navegación */
+}
+.container {
+    text-align: center;
+}
+.container .titulo {
+    margin-bottom: 30px;
+}
+.container .login {
+    background-color: #af9500;
+    padding: 40px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+.container .login form {
+    display: revert;
+    width: 250px;
+}
+.container .login form label {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+.container .login form input {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+.container .login form button {
+    padding: 10px 20px;
+    background-color: #ffffff;
+    color: #000000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.container .login form button:hover {
+    background-color: #0055b6;
+}
+
+.container .login form input[type="text"] {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    width: 93%; /* Ajusta el ancho al 100% */
+}
+
+#pregunta {
+    padding: 10px;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Ajusta el ancho al 100% */
+}
+
+
+a {
+    text-decoration: auto;
+    font-size: 1.1vw;
+}
+a:hover {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+}
+h1{
+    position: fixed;
+    color: rgb(0, 0, 0);
+    top: 0;
+    margin-top: 6%;
+}
+
+/* Estilos para los tooltips */
+[data-tooltip]:before, [title]:before {
+    content: attr(data-tooltip);
+    position: absolute;
+    padding: 5px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+  
+  [data-tooltip]:hover:before, [title]:hover:before {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  #respuesta {
+    -webkit-text-security: disc; /* Para navegadores WebKit como Chrome y Safari */
+    -moz-text-security: disc; /* Para navegadores basados en Gecko como Firefox */
+  }

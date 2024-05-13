@@ -1,0 +1,166 @@
+body{
+    margin: 0;
+    padding: 0%;
+    font-family: Arial, sans-serif;
+  }
+  
+
+  .container {
+      width: 100%; 
+      margin: auto; 
+      overflow: hidden;
+      display: auto;
+      position: relative;
+  }
+  /*Estilos para la barra de navegacion*/
+  .navbar {
+    background-color: #8E7A00;
+    overflow: hidden;
+    margin: auto;
+    position: fixed; 
+    top: 0; 
+    width: 100%; 
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+}
+
+.navbar ul li {
+    margin-right: 10px;
+}
+
+.navbar ul li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar ul li a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.sidebar {
+    float: left;
+    width: 30%;
+    padding: 20px;
+    background-color: #f1f1f1;
+    margin-top: 60px; 
+}
+
+.main {
+    float: left;
+    width: 70%;
+    padding: 20px;
+    margin-top: 60px; 
+}
+
+
+/* Estilos para el formulario de perfil */
+form {
+  max-width: 682px;
+  margin: 0 auto;
+  padding: 1px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  font-size: 1.1vw;
+  top: 0;
+  position: relative;
+  margin-top: 2%;
+  }
+  
+  
+  form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold; 
+    color: #555;  
+  }
+  
+  form input[type="text"],
+  form input[type="email"],
+  form input[type="password"] {
+    width: 100%;
+    padding: 12px; 
+    margin-bottom: 20px; 
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px; }
+  
+  form button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 14px; 
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 18px; 
+    font-weight: bold; 
+  }
+  
+  form button[type="submit"]:hover {
+    background-color: #0056b3;
+  }
+  
+  #id_password_helptext,
+  #id_username_helptext,
+  strong {
+    display: none;
+  }
+
+#id_pregunta_recuperacion{
+  width: 100%;
+  padding: 12px; 
+  margin-bottom: 20px; 
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  font-size: 16px; 
+}
+
+label {
+  display: none;
+}
+
+small{
+  display: none;
+}
+
+.navbar ul li a.cerrar-sesion {
+  position: absolute;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  right: 0;
+}
+
+.navbar ul li a.cerrar-sesion:hover{
+  background-color: #ff0000;
+  color: #000000;
+}
+
+h1 {
+  position: relative;
+  top: 0;
+  left: 0;
+  margin-left: 2%;
+  margin-top: 6%;
+}
+
+#id_respuesta_recuperacion {
+  -webkit-text-security: disc; /* Para navegadores WebKit como Chrome y Safari */
+  -moz-text-security: disc; /* Para navegadores basados en Gecko como Firefox */
+}

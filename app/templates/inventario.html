@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Sistema de Inventario</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/inventario.css' %}">
 </head>
 <body>
@@ -13,118 +12,388 @@
             <ul>
                 <li><a href="/perfil/">Perfil</a></li>
                 <li><a href="/">Inicio</a></li>
+                {%if perms.app.view_item%}
+                <li><a href="/inventario/">Inventario</a></li>
+                {%endif%}
                 <li><a href="/recetas/">Recetas</a></li>
                 <li><a href="/bitacora/">Bitácora</a></li>
+                {%if perms.app.view_Marca%}
+                <li><a href="/marca/">marca</a></li>
+                {%endif%}
+                {%if perms.app.view_Proveedor%}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {%endif%}
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+                </li>
             </ul>
         </nav>
         <div class="search-bar">
-            <form action="#" method="GET">
-                <input type="text" name="search" placeholder="Buscar...">
-                <button type="submit">Buscar</button>
+            <form>
+                <input type="text" id="search-input" name="search" placeholder="Buscar...">
             </form>
         </div>
-        <h2>Inventario UUSMB</h2>
+        <button type="button" class='insertar' onclick="window.location.href='{% url 'insertar_r'%}'">
+            <img src="{% static 'imagenes/insertar.png' %}"></button>
         <table class="default">
-            <tr>
-                <th>
-                    <input type="text" name="filter_id" placeholder="ID">
-                </th>
-                <th>
-                    <input type="text" name="filter_nombre" placeholder="Nombre">
-                </th>
-                <th>
-                    <input type="text" name="filter_contenido" placeholder="Contenido">
-                </th>
-                <th>
-                    <input type="text" name="filter_unidad" placeholder="UM">
-                </th>
-                <th>
-                    <input type="text" name="filter_id" placeholder="stock">
-                </th>
-                <th>
-                    <input type="text" name="filter_nombre" placeholder="marca">
-                </th>
-                <th>
-                    <input type="text" name="filter_contenido" placeholder="CB">
-                </th>
-                <th>
-                    <input type="text" name="filter_unidad" placeholder="NO.ref">
-                </th>
-                <th>
-                    <input type="text" name="filter_id" placeholder="CAD">
-                </th>
-                <th>
-                    <input type="text" name="filter_nombre" placeholder="lote">
-                </th>
-                <th>
-                    <input type="text" name="filter_contenido" placeholder="recep">
-                </th>
-                <th>
-                    <input type="text" name="filter_unidad" placeholder="cantidad">
-                </th>
-                <th>
-                    <input type="text" name="filter_id" placeholder="precio">
-                </th>
-                <th>
-                    <input type="text" name="filter_nombre" placeholder="cod">
-                </th>
-                <th>
-                    <input type="text" name="filter_contenido" placeholder="tipo">
-                </th>
-                <th>
-                    <input type="text" name="filter_unidad" placeholder="equipo">
-                </th>
-                <th>
-                    <input type="text" name="filter_id" placeholder="nivel">
-                </th>
-                <th>
-                    <input type="text" name="filter_nombre" placeholder="status">
-                </th>
-            </tr>
-            <tr>
-                <th>Id_item</th>
-                <th>nombre</th>
-                <th>contenido</th>
-                <th>unidad de medida</th>
-                <th>stock</th>
-                <th>marca</th>
-                <th>codigo de barras</th>
-                <th>no_referencia</th>
-                <th>fecha caducidad</th>
-                <th>lote</th>
-                <th>fecha recepcion</th>
-                <th>cantidad</th>
-                <th>precio_uni</th>
-                <th>cod</th>
-                <th>tipo</th>
-                <th>equipo</th>
-                <th>nivel</th>
-                <th>status</th>
-            
-            </tr>
-            {% for _ in "1234567" %}
-            <tr>
-                <td>1</td>
-                <td>illumina</td>
-                <td>4</td>
-                <td>unidad</td>
-                <td>17</td>
-                <td>nanoport</td>
-                <td>4452382</td>
-                <td>A128U19</td>
-                <td>27/04/24</td>
-                <td>2384hj</td>
-                <td>21/12/23</td>
-                <td>3</td>
-                <td>10.5</td>
-                <td>no aplica</td>
-                <td>reactivo</td>
-                <td>A35</td>
-                <td>P3</td>
-                <td>disponible</td>
-            </tr>
-            {% endfor %}
+            <thead>
+                <tr>
+                    <th>
+                        <form class="filter-form">
+                            
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="id-filter" placeholder="Id" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="nombre-filter" placeholder="Nombre" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="contenido-filter" placeholder="Contenido" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="unidad-medida-filter" placeholder="Unidad de Medida" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="stock-filter" placeholder="Stock" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="marca-filter" placeholder="Marca" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="cod-barras-filter" placeholder="Código de Barras" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="numero-referencia-filter" placeholder="Número de Referencia" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="fecha-caducidad-filter" placeholder="Fecha de Caducidad" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="lote-filter" placeholder="Lote" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="fecha-recepcion-filter" placeholder="Fecha de Recepción" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="cantidad-filter" placeholder="Cantidad" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="cod-filter" placeholder="Código" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="tipo-filter" placeholder="Tipo" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="equipo-filter" placeholder="Equipo" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="nivel-filter" placeholder="Nivel" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="status-filter" placeholder="Status" class="filter-input">
+                        </form>
+                    </th>
+                </tr>
+                <tr>
+                    <th></th> 
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Contenido</th>
+                    <th>Unidad Medida</th>
+                    <th>Stock</th>
+                    <th>Marca</th>
+                    <th>Cod barras</th>
+                    <th>Numero Referencia</th>
+                    <th>Fecha Caducidad</th>
+                    <th>Lote</th>
+                    <th>Fecha Recepcion</th>
+                    <th>Cantidad</th>
+                    <th>Cod</th>
+                    <th>Tipo</th>
+                    <th>Equipo</th>
+                    <th>Nivel</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for registro in registros %}
+                <tr>
+                    <td>
+                        {% if perms.app.change_item %}
+                        <button type="button" class='editar' onclick="window.location.href='{% url 'editar_item' registro.item.id %}'">
+                            <img src="{% static 'imagenes/editar.png' %}"></button>
+                        {%endif%}
+                        {% if perms.app.delete_item %}
+                        <button type="button" class='eliminar' data-item-id="{{ registro.id }}">
+                            <img src="{% static 'imagenes/borrar.png' %}">
+                        </button>
+                        {% endif %}
+                    </td>
+                    <td>{{ registro.id }}</td>
+                    <td>{{ registro.item.nombre }}</td>
+                    <td>{{ registro.item.contenido }}</td>
+                    <td>{{ registro.item.unidad_de_medida }}</td>
+                    <td>{{ registro.item.stock }}</td>
+                    <td>
+                        {% for marca in registro.item.marcas.all %}
+                            {{ marca.nombre }}
+                        {% endfor %}
+                    </td>
+                    
+                    <td>{{ registro.cod_barras }}</td>
+                    <td>{{ registro.no_referencia_inv }}</td>
+                    <td>{{ registro.fecha_caducidad|date:"Y-m-d" }}</td>
+                    <td>{{ registro.lote }}</td>
+                    <td>{{ registro.fecha_recepcion|date:"Y-m-d" }}</td>
+                    <td>{{ registro.cantidad }}</td>
+                    <td>{{ registro.cod }}</td>
+                    <td>
+                        {% for type in registro.item.types.all %}
+                            {{ type.nombre }}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for location in registro.item.locations.all %}
+                            {{ location.equipo }}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for location in registro.item.locations.all %}
+                            {{ location.nivel }}
+                        {% endfor %}
+                    </td>
+                    <td>{{ registro.status }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
+    
+
+    <script>
+        $(document).ready(function() {
+            $('#search-input').on('input', function() {
+                var searchText = $(this).val().toLowerCase();
+                $('table.default tbody tr').each(function() {
+                    var rowVisible = false;
+                    $(this).find('td').each(function() {
+                        var cellText = $(this).text().toLowerCase();
+                        if (cellText.includes(searchText)) {
+                            rowVisible = true;
+                            return false; 
+                        }
+                    });
+                    if (rowVisible) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+            $('#search-input').on('input', function() {
+                var searchText = $(this).val().toLowerCase();
+                $('table.default tbody tr').each(function() {
+                    var rowVisible = false;
+                    $(this).find('td').each(function() {
+                        var cellText = $(this).text().toLowerCase();
+                        if (cellText.includes(searchText)) {
+                            rowVisible = true;
+                            return false;
+                        }
+                    });
+                    if (rowVisible) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+    
+            $('.eliminar').click(function() {
+                var button = $(this);
+                var itemId = button.data('item-id');
+    
+                Swal.fire({
+                    title: "¿Estás seguro?",
+                    text: "No podrás revertir este cambio",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#FF1401",
+                    cancelButtonColor: "#458CFA",
+                    confirmButtonText: "Eliminar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/eliminar_item/' + itemId + '/',
+                            type: 'POST',
+                            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                            success: function(response) {
+                                button.closest('tr').remove();
+                                Swal.fire({
+                                    title: "¡Eliminado!",
+                                    text: "Tu ítem ha sido eliminado.",
+                                    icon: "success"
+                                });
+    
+                                // Actualizar el contenido de la tabla
+                                $.get('/inventario/', function(data) {
+                                    $('table.default tbody').html($(data).find('table.default tbody').html());
+                                });
+                            },
+                            error: function(xhr, errmsg, err) {
+                                console.log('Error al eliminar el ítem:', errmsg);
+                            }
+                        });
+                    }
+                });
+            });
+    
+            $('.filter-input').on('input', function() {
+                var filters = {};
+                $('.filter-input').each(function() {
+                    var columnIndex = $(this).closest('th').index();
+                    var filterText = $(this).val().toLowerCase();
+                    filters[columnIndex] = filterText;
+                });
+    
+                $('table.default tbody tr').each(function() {
+                    var mostrarFila = true;
+                    var row = $(this);
+    
+                    $(this).find('td').each(function(columnIndex) {
+                        var cellText = $(this).text().toLowerCase();
+                        var filterText = filters[columnIndex];
+    
+                        if (filterText && !cellText.includes(filterText)) {
+                            mostrarFila = false;
+                            return false;
+                        }
+                    });
+    
+                    if (mostrarFila) {
+                        row.show();
+                    } else {
+                        row.hide();
+                    }
+                });
+            });
+        });
+    
+        document.addEventListener("DOMContentLoaded", function() {
+            var fechaCaducidadCells = document.querySelectorAll("td:nth-child(10)");
+            var fechaActual = new Date();
+            var filasRojo = [];
+            var filasAmarillo = [];
+            var filasBlanca = [];
+    
+            fechaCaducidadCells.forEach(function(cell) {
+                var fechaCaducidad = new Date(cell.textContent);
+                var diffMeses = (fechaCaducidad.getFullYear() - fechaActual.getFullYear()) * 12 + (fechaCaducidad.getMonth() - fechaActual.getMonth());
+    
+                if (diffMeses <= 2) {
+                    filasRojo.push(cell.parentNode);
+                } else if (diffMeses <= 4) {
+                    filasAmarillo.push(cell.parentNode);
+                } else {
+                    filasBlanca.push(cell.parentNode);
+                }
+            });
+    
+            filasRojo.forEach(function(filaRojo) {
+                filaRojo.classList.add("caducidad-cercana");
+            });
+    
+            filasAmarillo.forEach(function(filaAmarillo) {
+                filaAmarillo.classList.add("caducidad-media");
+            });
+    
+            var tbody = document.querySelector("table.default tbody");
+            tbody.innerHTML = "";
+            filasRojo.concat(filasAmarillo).concat(filasBlanca).forEach(function(fila) {
+                tbody.appendChild(fila);
+            });
+        });
+    
+        document.addEventListener("DOMContentLoaded", function() {
+            var rows = document.querySelectorAll("tbody tr");
+            var rowsByNombre = {};
+            var showAll = true;
+    
+            rows.forEach(function(row) {
+                var nombreCell = row.querySelector("td:nth-child(3)");
+                var nombre = nombreCell.textContent.trim();
+                if (!rowsByNombre[nombre]) {
+                    rowsByNombre[nombre] = [];
+                }
+                rowsByNombre[nombre].push(row);
+    
+                row.addEventListener("click", function(event) {
+                    var isButtonClick = event.target.classList.contains("eliminar") || event.target.classList.contains("editar");
+    
+                    if (!isButtonClick) {
+                        if (showAll) {
+                            rows.forEach(function(row) {
+                                row.style.display = "none";
+                            });
+                            rowsByNombre[nombre].forEach(function(row) {
+                                row.style.display = "";
+                            });
+                            showAll = false;
+                        } else {
+                            rows.forEach(function(row) {
+                                row.style.display = "";
+                            });
+                            showAll = true;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    
+    
+
 </body>
 </html>

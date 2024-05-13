@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar Permisos</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/asignar.css' %}">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {%if perms.app.view_item%}
+                <li><a href="/inventario/">Inventario</a></li>
+                {%endif%}
+                <li><a href="/recetas/">Recetas</a></li>
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {% if perms.app.view_marca %}
+                <li><a href="/marca/">Marca</a></li>
+                {% endif %}
+                {% if perms.app.view_proveedor %}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {% endif %}
+                {% if perms.app.view_auth_permission %}
+                <li><a href="asignar-permisos/">Permisos</a></li>
+                {% endif %}
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+                </li>
+            </ul>
+        </nav>
+        <br><br><br>
+        <h1>Asignar Permisos</h1>
+        <div class="permisos">
+            <form method="post">
+                {% csrf_token %}
+                <label for="username">Seleccionar Usuario:</label>
+                <select name="username" id="username">
+                    {% for usuario in usuarios %}
+                    <option value="{{ usuario.username }}" {% if usuario.username == selected_username %} selected {% endif %}>{{ usuario.username }}</option>
+                    {% endfor %}
+                </select>
+                
+                {% if selected_user %}
+                <ul>
+                    {% for permiso in selected_user_permissions %}
+                    <li>{{ permiso.name }}</li>
+                    {% empty %}
+                    <li>No hay permisos asignados</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+                <label>Seleccionar Permisos:</label><br>
+                <div class="cajapermisos">
+                    {% for permiso in permisos %}
+                    <input type="checkbox" name="permissions" value="{{ permiso.id }}" {% if permiso in selected_user_permissions %} checked {% endif %}> {{ permiso.name }}<br>
+                    {% endfor %}
+                    <br>
+                </div>
+                <button type="submit">Asignar Permisos</button>
+        </form>
+    </div>
+    </div>
+</body>
+</html>

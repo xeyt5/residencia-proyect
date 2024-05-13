@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Contraseña</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/barra.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/recuperacion.css' %}">
+</head>
+<body>
+    <h1>Recuperar Contraseña</h1>
+    <div class="container">
+        <div class="login">
+            <form method="post">
+                {% csrf_token %}
+                <label for="email" title="Ingrese su email">correo electronico:</label>
+                <input type="text" name="email" id="email" data-tooltip="Ingrese nombre de usuario">
+                <label for="pregunta" title="Seleccione su pregunta de recuperación">Pregunta de recuperación:</label>
+                <select name="pregunta_recuperacion" id="pregunta" data-tooltip="Seleccione pregunta de recuperación">
+                    {% for opcion in opciones_pregunta_recuperacion %}
+                        <option value="{{ opcion.0 }}">{{ opcion.1 }}</option>
+                    {% endfor %}
+                </select><br>
+                <label for="respuesta" title="Ingrese su respuesta de recuperación">Respuesta de recuperación:</label>
+                <input type="text" name="respuesta_recuperacion" id="respuesta" data-tooltip="Ingrese respuesta de recuperación"><br>
+                <button type="submit">Recuperar Contraseña</button>
+            </form>
+        </div>
+        <label id="mensaje">{% if mensaje %}{{ mensaje }}{% endif %}</label>
+    </div>
+    <div class="navbar">
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/acerca/">Acerca de</a></li>
+            <li><a href="#">Contáctanos</a></li>
+            <li><a href="http://www.uusmb.unam.mx/">Página de la Unidad</a></li>
+            <li><a href="/manual/">Manual de Usuario</a></li>
+        </ul>
+    </div>
+</body>
+</html>

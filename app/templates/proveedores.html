@@ -1,0 +1,134 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Proveedores</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/proveedor.css' %}">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {%if perms.app.view_item%}
+                <li><a href="/inventario/">Inventario</a></li>
+                {%endif%}
+                <li><a href="/recetas/">Recetas</a></li>
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {%if perms.app.view_Marca%}
+                <li><a href="/marca/">marca</a></li>
+                {%endif%}
+                {%if perms.app.view_proveedor%}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {%endif%}
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+                </li>
+            </ul>
+        </nav>
+        <br><br>
+        <h1>Proveedores</h1>
+        {%if perms.app.add_proveedor%}
+        <button type="button" class='insertar' onclick="window.location.href='{% url 'r_proveedor'%}'" alt="registrar provedor">
+            <img src="{% static 'imagenes/insertar.png' %}" class="insertar-imagen" alt="registrar provedor"></button>
+        {%endif%}
+        <table class="default">
+            <thead>
+                <tr>
+                    <th></th> 
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Descripcion</th>
+                    <th>Telefono</th>
+                    <th>Correo</th>
+                    <th>Url</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proveedor in Proveedores %}
+                <tr>
+                    <td>
+                        {% if perms.app.change_Proveedor %}
+                        <button type="button" onclick="window.location.href='{% url 'editar_proveedor' proveedor.id %}'" class="editar">
+                            <img src="{% static 'imagenes/editar.png' %}" alt="Editar">
+                        </button>                        
+                        {% endif %}
+                        <br><br>
+                        {% if perms.app.delete_Proveedor %}
+                        <button type="button" class="eliminar" data-item-id="{{ proveedor.id }}">
+                            <img src="{% static 'imagenes/borrar.png' %}">
+                        {% endif %}
+                    </td>
+                    <td>{{ proveedor.id }}</td>
+                    <td>{{ proveedor.nombre }}</td>
+                    <td>{{ proveedor.descripcion }}</td>
+                    <td>{{ proveedor.telefono }}</td>
+                    <td>{{ proveedor.correo }}</td>
+                    <td><a href="{{ proveedor.url }}" class="sin-subrayado">{{ proveedor.url }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.querySelectorAll('.eliminar').forEach(button => {
+                button.addEventListener('click', function() {
+                    const proveedorId = this.getAttribute('data-item-id');
+                    Swal.fire({
+                        title: "¿quieres eliminar a este proveedor?",
+                        text: "No se puede revertir este cambio",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#FF1401",
+                        cancelButtonColor: "#458CFA",
+                        confirmButtonText: "eliminar"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const csrftoken = getCookie('csrftoken');
+                            fetch(`/eliminar-proveedor/${proveedorId}/`, { // Ajusta la URL según tu ruta de eliminación
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRFToken': csrftoken,
+                                    'Content-Type': 'application/json',
+                                },
+                            }).then(response => {
+                                if (response.ok) {
+                                    Swal.fire({
+                                        title: "¡Eliminado!",
+                                        text: "El proveedor ha sido eliminado.",
+                                        icon: "success"
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                } else {
+                                    console.error('Error al eliminar el proveedor');
+                                }
+                            }).catch(error => {
+                                console.error('Error al eliminar el proveedor:', error);
+                            });
+                        }
+                    });
+                });
+            });
+        
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        </script>
+
+</body>
+</html>

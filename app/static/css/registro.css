@@ -1,115 +1,108 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f9f9f9; /* Cambiado a un tono más suave */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-image: url('/static/imagenes/fondo.png'); /* Ruta absoluta para la imagen */
-    background-size: 90%; /* Reducir el tamaño de la imagen al 40% */
-    background-repeat: no-repeat; /* Evitar que la imagen se repita */
-    background-position: center; /* Centrar la imagen */
+  font-family: 'Roboto', Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-image: url('/static/imagenes/fondo.png');
+  background-size: 50%;  
+  background-repeat: no-repeat; 
+  background-position: center; 
+  position: static;
+}
+
+.navbar{
+    left: 0;
 }
 
 .container {
-    background-color: #b19601;
-    padding: 40px; /* Aumenté el padding para dar más espacio al contenido */
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    max-width: 450px; /* Ajustado el ancho máximo */
-    width: 100%;
+  width: 400px;
+  margin: 0 auto;
+  background-color: #ad9300;
+  padding: 10px 40px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  margin-top: 4%;
+  text-align: center;
 }
 
-.container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #000000;
-    font-weight: 600;
-    display: inline-flex;
-    margin-top: -4%;
+h1 {
+  text-align: center;
+  color: #333;
 }
 
-.container h2::after {
-    content: '';
-    position: absolute;
-    bottom: -8px; /* Ajustado el espacio para el underline */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px; /* Aumenté el ancho del underline */
-    height: 3px;
-    background-color: #FDA085;
-    border-radius: 2px;
+input[type="text"],
+input[type="password"],
+input[type="email"],
+select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  font-size: 1.3vw;
 }
 
-.container form {
-    display: flex;
-    flex-direction: column;
+button {
+  padding: 10px 20px;
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
 }
 
-.container form label {
-    font-weight: 500;
-    margin-bottom: 8px; /* Reducido el espacio entre el label y el input */
-    color: #000000;
+#id_username_helptext {
+  display: none;
 }
 
-.container form input,
-.container form select#id_pregunta_recuperacion {
-    padding: 12px; /* Aumentado el padding para hacer los inputs más visibles */
-    margin-bottom: 20px; /* Aumentado el espacio entre los inputs */
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-    transition: border-color 0.3s;
+input[type="submit"]:hover,
+button:hover {
+  background-color: #0055b6;
 }
 
-.container form input:focus,
-.container form select#id_pregunta_recuperacion:focus {
-    outline: none;
-    border-color: #FDA085;
-    box-shadow: 0 0 5px rgba(253, 160, 133, 0.3);
+.links {
+  position: relative;
+  margin-top: 10%;
 }
 
-.container form button {
-    padding: 14px 20px; /* Aumentado el padding del botón */
-    background-color: #FDA085;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px; /* Aumentado el tamaño del texto */
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-    margin-top: 20px; /* Aumentado el espacio entre el último input y el botón */
+a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.1vw;
 }
 
-.container form button:hover {
-    background-color: #F6D365;
-    color: #333;
-    transform: translateY(-2px);
+a:hover {
+  color: rgb(0, 0, 0);
 }
 
-.container form a {
-    margin-top: 15px;
-    text-align: center;
-    color: #FDA085;
-    text-decoration: none;
-    font-weight: 500;
+h2 {
+  position: relative;  
+  color: rgb(0, 0, 0);
+  margin-top: 0%;
 }
 
-.container form a:hover {
-    text-decoration: underline;
-}
-.helptext#id_username_helptext {
-    display: none;
+#id_respuesta_recuperacion {
+  -webkit-text-security: disc; /* Para navegadores WebKit como Chrome y Safari */
+  -moz-text-security: disc; /* Para navegadores basados en Gecko como Firefox */
 }
 
-a{
-    position: fixed;
-    text-align: center;
-    margin-left: 14.8%;  
-    color: white;
-    text-decoration: none;
+.container .login form input[type="submit"] {
+  padding: 10px 20px;
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.container .login form input[type="submit"]:hover {
+  background-color: #0055b6;
 }

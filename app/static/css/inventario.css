@@ -4,83 +4,203 @@ body {
     font-family: Arial, sans-serif;
 }
 
-table.default {
-    width: calc(100% - 80px); /* Ancho de la tabla */
-    margin: 20px auto; /* Centra la tabla y agrega margen superior e inferior */
-    border-collapse: collapse;
-    margin-top: 60px; /* Espacio superior */
-
-}
-
-table.default th,
-table.default td {
-    padding: 4px;
-    text-align: center;
-    border-bottom: 2px solid #000000; /* Línea divisoria */
-}
-
-/* Estilos para dispositivos móviles */
-@media only screen and (max-width: 600px) {
-    table.default {
-        width: 100%;
-    }
-
-    table.default th,
-    table.default td {
-        padding: 6px;
-        font-size: 14px;
-    }
-}
-
-h2{
-    text-align: center;
+.container {
+    width: 100%;
     margin: auto;
-    margin-top: 20px;
+    overflow: auto;
+    display: auto;
+    position: relative;
+    margin-top: 60px;
 }
+
+.navbar {
+    background-color: #8E7A00;
+    overflow: hidden;
+    margin: auto;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+}
+
+.navbar ul li {
+    margin-right: 10px;
+}
+
+.navbar ul li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.navbar ul li a.cerrar-sesion {
+    position: absolute;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    right: 0;
+}
+.navbar ul li a.cerrar-sesion:hover{
+    background-color: red;
+    color: rgb(0, 0, 0);
+}
+
+.navbar ul li a:hover {
+    background-color: #dddddd;
+    color: black;
+}
+
+table {
+    width: 100%;
+    height: 80%;
+    border-collapse: collapse;
+    margin-top: 60px;
+}
+
+th, td {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid rgba(194, 192, 192, 0.356)
+}
+
+th {
+    background-color: #8E7A00;
+    color: rgb(0, 0, 0);
+    position: sticky;
+    top: 0;
+}
+
+
+tr:hover {
+    background-color: #bebdbd9f;
+}
+
 
 .search-bar {
-    margin-top: 3%;
-    position: fixed;
-    margin-left: 74%;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 1%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
+
 .search-bar form {
     display: flex;
     align-items: center;
-    width: 300px;
-    background-color: #f2f2f2;
-    border-radius: 5px;
-    overflow: hidden;
-}
-.search-bar input[type="text"] {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    outline: none;
-    background: none;
-}
-.search-bar button {
-    padding: 10px 20px;
-    border: none;
-    background-color: #1696ff;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-.search-bar button:hover {
-    background-color: #45a049;
 }
 
+.search-bar input[type="text"] {
+    border: 3px solid #ccc;
+    border-radius: 9px;
+    padding: 7px 13px;
+    width: 100%;
+}
+
+
+
 /* Estilos para los filtros */
-table.default input[type="text"] {
+table input[type="text"],
+input[type="date"],
+select[type="select"],
+input[type="number"] {
     width: 100%;
     padding: 8px;
     box-sizing: border-box;
-    border: 1px solid #ccc;
+    border: 1px solid #000000;
     border-radius: 4px;
     margin-top: 5px;
     margin-bottom: 10px;
     transition: border-color 0.3s;
 }
-table.default input[type="text"]:focus {
-    border-color: #4CAF50;
+
+
+.container-table {
+    overflow-x: auto; /* Agrega una barra de desplazamiento horizontal si es necesario */
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto; /* Agrega una barra de desplazamiento horizontal si es necesario */
+}
+
+.table-wrapper table {
+    width: auto; 
+}
+
+table.default td button {
+    margin-right: 5px; 
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.eliminar {
+    background-color: rgb(158, 0, 0); 
+    border-radius: 12px;
+
+}
+
+.eliminar img {
+    width: 20px; 
+    height: 20px; 
+}
+
+
+
+.editar {
+    background-color: blue;
+    border-radius: 12px;
+    cursor: pointer; 
+    padding: 0; 
+}
+
+.editar img {
+    width: 20px; 
+    height: 20px; 
+}
+.editar:hover{
+    background-color: #2788f7;
+}
+
+
+.caducidad-cercana {
+    background-color: #ff4c4c8c; 
+}
+
+.caducidad-media {
+    background-color: #ffff0098; 
+}
+
+.insertar {
+    position: absolute;
+    margin-left: 0.6%;
+    background-color: greenyellow; 
+    cursor: pointer;
+    border-radius: 12px;
+    width: 46px;
+    height: 32px;
+    margin-top: 1%;
+}
+
+.insertar img {
+    width: 20px; 
+    height: 20px; 
+}
+
+.insertar:hover{
+    background-color: #79ff57;
 }

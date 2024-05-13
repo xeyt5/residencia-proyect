@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Acerca de</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/barra.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/acerca.css' %}">
+</head>
+<body>
+    <div class="navbar">
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/acerca/">Acerca de</a></li>
+            <li><a href="#">Contáctanos</a></li>
+            <li><a href="http://www.uusmb.unam.mx/">Página de la Unidad</a></li>
+            <li><a href="/manual/">Manual de Usuario</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <div class="acerca">
+            <h1>¿Qué es el Sistema de Inventario?</h1>
+            <p>El Sistema de Inventario es una herramienta fundamental para la gestión eficiente de los recursos de una unidad, garantizando la calidad y la eficiencia en la provisión de servicios y productos.</p>
+            <p>Beneficios:</p>
+            <ul>
+                <li>Cumplimiento normativo</li>
+                <li>Optimización de recursos</li>
+                <li>Gestión eficiente de caducidades</li>
+                <li>Seguimiento de inventario en tiempo real</li>
+                <li>Generación de informes y análisis de datos</li>
+            </ul>
+        </div>
+        <div class="imagenes">
+            <img src="{% static 'imagenes/inventario1.jpg' %}" alt="inventario1">
+            <img src="{% static 'imagenes/inventario2.jpg' %}" alt="inventario2">
+            <img src="{% static 'imagenes/inventario3.jpg' %}" alt="inventario3">
+        </div>
+    </div>
+</body>
+</html>

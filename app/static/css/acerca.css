@@ -1,0 +1,32 @@
+/* Estilos para el contenido */
+.container {
+    margin-top: 50px; /* Ajusta el espacio para la barra de navegación */
+    padding: 20px;
+}
+
+.acerca {
+    text-align: center;
+}
+
+.acerca h1 {
+    font-size: 28px;
+    color: #333;
+}
+
+.acerca p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.imagenes {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.imagenes img {
+    width: 30%;
+    margin: 0 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

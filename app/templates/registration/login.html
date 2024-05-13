@@ -5,8 +5,14 @@
     <meta charset="UTF-8">
     <title>Iniciar Sesión</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/barra.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class='fondo'>
+    <img src="{% static 'imagenes/unam.png' %}" alt="unam logo" class="unam">
+    <img src="{% static 'imagenes/laboratori.png' %}" alt="laboratorio logo" class="laboratorio">
+    <img src="{% static 'imagenes/uusmb.png' %}" alt="uusmb logo" class="uusmb">
+
     <div class="container">
         <div class="login"> 
             <form method="post" action="{% url 'login' %}">
@@ -23,10 +29,49 @@
                 <button type="submit">Iniciar Sesión</button>
                 <div class="links">
                     <a href="/registro/">registrarse</a> ||
-                    <a href="/recuperar/">olvide clave</a> 
+                    <a href="/recuperar-contraseña/">olvide clave</a> 
                 </div>
             </form>
         </div>
     </div>
+    <div class="navbar">
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/acerca/">Acerca de</a></li>
+            <li><a href="#">Contáctanos</a></li>
+            <li><a href="http://www.uusmb.unam.mx/">Página de la Unidad</a></li>
+            <li><a href="/manual/">manual de usuario</a></li>
+        </ul>
+    </div>
+    
+    <!-- Contenedor para mostrar los mensajes -->
+    <div id="message-container">
+        {% if messages %}
+            {% for m in messages %}
+                <p>{{ m }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
+    <script>
+        // Código JavaScript para mostrar mensajes con SweetAlert2
+        {% if messages %}
+            {% for m in messages %}
+                {% if 'Se modificaron tus datos correctamente' in m.message %}
+                    Swal.fire({
+                        "title": "Perfil actualizado",
+                        "text": "{{ m }}",
+                        "icon": "success",
+                    });
+                {% else %}
+                    Swal.fire({
+                        "title": "Felicitaciones",
+                        "text": "{{ m }}",
+                        "icon": "success"
+                    });
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </script>
 </body>
 </html>

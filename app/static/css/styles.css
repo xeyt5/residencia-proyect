@@ -8,7 +8,7 @@ body{
     text-align: center;
     position: fixed;
     margin-left: 6%;
-    margin-top: 1%;
+    margin-top: 4%;
     font-size: 1.7vw;
 }
 
@@ -16,11 +16,10 @@ body{
 p {
     position: fixed;
     color: #000000;
-    font-size: 1.2vw;
     width: 90%;
     font-family: system-ui;
-    font-size: 1.2vw;
-    margin-top: 37%;
+    font-size: 1.1vw;
+    margin-top: 42%;
     margin-left: 1%;
 }
   
@@ -46,61 +45,66 @@ p {
       position: relative;
   }
   .navbar {
-      background-color: #8E7A00;
-      overflow: hidden;
-      margin: auto; /* Centra la barra de navegación */
-  }
-  .navbar ul {
-      list-style-type: none;
-      margin: 0;
-      padding: 0;
-      overflow: hidden; /* Alinea el texto al centro */
-      display: flex;
-  }
-  
-  .navbar ul li {
-      margin-right: 10px;
-  }
+    background-color: #8E7A00;
+    overflow: hidden;
+    margin: auto;
+    position: fixed; /* Hace que la barra de navegación sea fija */
+    top: 0; /* La fija en la parte superior */
+    width: 100%; /* Ocupa todo el ancho */
+}
 
-  .navbar ul li a {
-    /* Estilos para los enlaces de la barra de navegación */
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+}
+
+.navbar ul li {
+    margin-right: 10px;
+}
+
+.navbar ul li a {
     display: block;
     color: white;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
 }
-
-  .navbar ul li a:hover {
-      background-color: #ddd;
-      color: black;
-  }
-
-  .sidebar {
-      float: left;
-      width: 30%;
-      padding: 20px;
-      background-color: #f1f1f1;
-  }
-  .main {
-      float: left;
-      width: 70%;
-      padding: 20px;
-  }
-
-  .cerrar-sesion {
-    margin-left: auto; /* Empuja el elemento .cerrar hacia abajo */
-}
-.cerrar-sesion a{
-    display: block;
+.navbar ul li a.cerrar-sesion {
+    position: absolute;
     color: white;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
+    right: 0;
 }
 
-.cerrar-sesion a:hover{
+
+
+.navbar ul li a:hover {
     background-color: #ddd;
-    color: #000;
+    color: black;
 }
+
+.sidebar {
+    float: left;
+    width: 30%;
+    padding: 20px;
+    background-color: #f1f1f1;
+    margin-top: 60px; /* Ajusta el margen superior para evitar que se solape con la barra de navegación */
+}
+
+.main {
+    float: left;
+    width: 70%;
+    padding: 20px;
+    margin-top: 60px; /* Ajusta el margen superior para evitar que se solape con la barra de navegación */
+}
+
+.navbar ul li a.cerrar-sesion:hover{
+    background-color: #ff0000;
+    color: #000000;
+  }
 

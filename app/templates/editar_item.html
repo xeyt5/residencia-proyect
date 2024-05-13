@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Ítem</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_item.css' %}">
+</head>
+<body>
+    <h1>Editar Ítem</h1>
+    <div class="container">
+        <div class="edit">
+            <form method="post">
+                {% csrf_token %}
+                <div class="column-left">
+                    <label for="nombre">Nombre:</label><br>
+                    <input type="text" id="nombre" name="nombre" value="{{ item.nombre }}"><br>
+                    <label for="contenido">Contenido:</label><br>
+                    <input type="text" id="contenido" name="contenido" value="{{ item.contenido }}"><br>
+                    <label for="unidad_medida">Unidad de Medida:</label><br>
+                    <input type="text" id="unidad_medida" name="unidad_medida" value="{{ item.unidad_de_medida }}"><br>
+                    <label for="stock">Stock:</label><br>
+                    <input type="text" id="stock" name="stock" value="{{ item.stock }}"><br>
+                    <label for="tipo">Tipo:</label><br>
+                    <select id="tipo" name="tipo">
+                        {% for type in types %}
+                        <option value="{{ type.id }}" {% if type in item.types.all %} selected {% endif %}>{{ type.nombre }}</option>
+                        {% endfor %}
+                    </select><br>
+                    <label for="ubicacion">Ubicación:</label><br>
+                    <select id="ubicacion" name="ubicacion">
+                        {% for location in locations %}
+                        <option value="{{ location.id }}" {% if location in item.locations.all %} selected {% endif %}>{{ location.equipo }}</option>
+                        {% endfor %}
+                    </select><br>
+                    <label for="marca">Marca:</label><br>
+                    <select id="marca" name="marca">
+                        {% for marca in marcas %}
+                        <option value="{{ marca.id }}" {% if marca in item.marcas.all %} selected {% endif %}>{{ marca.nombre }}</option>
+                        {% endfor %}
+                    </select><br>
+                </div>
+                <div class="column-right">
+                    <label for="cod_barras">Código de Barras:</label><br>
+                    <input type="text" id="cod_barras" name="cod_barras" value="{{ registro.cod_barras }}"><br>
+                    <label for="no_referencia_inv">Número de Referencia:</label><br>
+                    <input type="text" id="no_referencia_inv" name="no_referencia_inv" value="{{ registro.no_referencia_inv }}"><br>
+                    <label for="fecha_caducidad">Fecha de Caducidad:</label><br>
+                    <input type="date" id="fecha_caducidad" name="fecha_caducidad" value="{{ registro.fecha_caducidad }}"><br>
+                    <label for="lote">Lote:</label><br>
+                    <input type="text" id="lote" name="lote" value="{{ registro.lote }}"><br>
+                    <label for="fecha_recepcion">Fecha de Recepción:</label><br>
+                    <input type="date" id="fecha_recepcion" name="fecha_recepcion" value="{{ registro.fecha_recepcion }}"><br>
+                    <label for="cantidad">Cantidad:</label><br>
+                    <input type="text" id="cantidad" name="cantidad" value="{{ registro.cantidad }}"><br>
+                    <label for="cod">Código:</label><br>
+                    <input type="text" id="cod" name="cod" value="{{ registro.cod }}"><br>
+                    <label for="status">Status:</label><br>
+                    <input type="text" id="status" name="status" value="{{ registro.status }}"><br>
+                </div>
+                <input type="submit" value="Guardar Cambios">
+            </form>
+        </div>
+    </div>
+</body>
+</html>

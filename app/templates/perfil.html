@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/perfil.css' %}">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {%if perms.app.view_item%}
+                <li><a href="/inventario/">Inventario</a></li>
+                {%endif%}
+                <li><a href="/recetas/">Recetas</a></li>
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {%if perms.app.view_Marca%}
+                <li><a href="/marca/">marca</a></li>
+                {%endif%}
+                {%if perms.app.view_Proveedor%}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {%endif%}
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+                </li>
+            </ul>
+        </nav>
+        <div class="contenido">
+            <h1>BIENVENIDO {{ request.user.username.upper }}</h1>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {% if field.name != 'password' %}
+                            <p>
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small>{{ field.help_text }}</small>
+                                {% endif %}
+                            </p>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    {% endfor %}
+                    <button type="submit">Guardar cambios</button>
+                </form>
+        </div>
+    </div>
+</body>
+</html>

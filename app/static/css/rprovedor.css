@@ -1,0 +1,109 @@
+body{
+    margin: 0;
+    padding: 0%;
+    font-family: Arial, sans-serif;
+  }
+
+
+.navbar {
+    background-color: #8E7A00;
+    overflow: hidden;
+    margin: auto;
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    width: 100%;
+}
+
+.navbar ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+}
+
+.navbar ul li {
+    margin-right: 10px;
+}
+
+.navbar ul li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+.navbar ul li a.cerrar-sesion {
+    position: absolute;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    right: 0;
+}
+
+.navbar ul li a:hover {
+    background-color: #ddd;
+    color: black;
+}
+form {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px; 
+    background-color: #f9f9f9;
+    border: 1px solid #ccc; /* Añade un borde gris claro al formulario */
+    border-radius: 15px; /* Añade una esquina ligeramente redondeada al formulario */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Añade una sombra sutil al formulario */
+    text-align: center;
+    font-size: 18px; 
+    font-family: Arial, sans-serif; /* Cambia la fuente a Arial */
+    color: #333; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+button {
+    border-radius: 15px;
+    width: 120px;
+    height: 40px;
+    background-color: #007bff; /* Cambia el color de fondo a azul */
+    color: white;
+    cursor: pointer;
+    font-size: 16px; /* Ajusta el tamaño del texto del botón */
+    border: none; /* Elimina el borde del botón */
+    margin-top: 20px; /* Añade un espacio entre el botón y los campos */
+}
+
+button:hover {
+    background-color: #03cdff; /* Cambia el color de fondo al pasar el mouse */
+}
+
+input[type="text"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc; /* Añade un borde a los campos de texto */
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+#id_descripcion {
+    height: 100px; /* Ajusta la altura del campo de descripción */
+}
+
+/* Estilo específico para el campo de correo */
+#id_correo {
+    width: calc(100% - 20px); /* Ajusta el ancho del campo de correo */
+    margin-right: 10px; /* Añade un espacio entre el campo de correo y el campo de URL */
+}
+
+/* Estilo específico para el campo de URL */
+#id_url {
+    width: calc(100% - 20px); /* Ajusta el ancho del campo de URL */
+    margin-left: 10px; /* Añade un espacio entre el campo de URL y el campo de correo */
+}
+
+  

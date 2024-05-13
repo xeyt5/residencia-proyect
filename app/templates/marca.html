@@ -18,12 +18,15 @@
                 {%endif%}
                 <li><a href="/recetas/">Recetas</a></li>
                 <li><a href="/bitacora/">Bitácora</a></li>
-                {%if perms.app.view_Marca%}
-                <li><a href="/marca/">marca</a></li>
-                {%endif%}
-                {%if perms.app.view_Proveedor%}
+                {% if perms.app.view_marca %}
+                <li><a href="/marca/">Marca</a></li>
+                {% endif %}
+                {% if perms.app.view_proveedor %}
                 <li><a href="/proveedores/">Proveedores</a></li>
-                {%endif%}
+                {% endif %}
+                {% if perms.app.view_auth_permission %}
+                <li><a href="asignar-permisos/">Permisos</a></li>
+                {% endif %}
                 <li>
                     <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
                 </li>

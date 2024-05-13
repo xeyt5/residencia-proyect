@@ -148,9 +148,19 @@ table.default td button {
     margin-top: 5px;
 }
 
+
+.caducidad-cercana {
+    background-color: #ff4c4c8c; 
+}
+
+.caducidad-media {
+    background-color: #ffff0098; 
+}
+
 .eliminar {
     background-color: rgb(158, 0, 0); 
     border-radius: 12px;
+    cursor: pointer; 
 
 }
 
@@ -159,7 +169,9 @@ table.default td button {
     height: 20px; 
 }
 
-
+.eliminar:hover{
+    background-color: #fd8060;
+}
 
 .editar {
     background-color: blue;
@@ -177,30 +189,23 @@ table.default td button {
 }
 
 
-.caducidad-cercana {
-    background-color: #ff4c4c8c; 
-}
-
-.caducidad-media {
-    background-color: #ffff0098; 
-}
-
-.insertar {
-    position: absolute;
-    margin-left: 0.6%;
-    background-color: greenyellow; 
+.insertar{
+    width: 45px;
+    position: static;
+    margin-right: 1%;
     cursor: pointer;
-    border-radius: 12px;
-    width: 46px;
-    height: 32px;
-    margin-top: 1%;
-}
-
-.insertar img {
-    width: 20px; 
-    height: 20px; 
+    background-color: rgb(67, 134, 0);
+    border-radius: 6px;
+    margin-bottom: 1%;
+    margin-left: 2%;
 }
 
 .insertar:hover{
-    background-color: #79ff57;
+    background-color: greenyellow;
 }
+
+.insertar-imagen{
+    width: 20px;
+    height: 20px;
+}
+

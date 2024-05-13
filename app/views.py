@@ -20,7 +20,7 @@ def asignar_permisos(request):
     # Filtrar los content types relacionados con tus modelos
     content_types = ContentType.objects.filter(
         app_label='app', 
-        model__in=['type', 'location', 'marca', 'proveedor', 'item', 'registro']
+        model__in=['location', 'marca', 'proveedor', 'item']
     )
     
     # Obtener los permisos relacionados con los content types filtrados

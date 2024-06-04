@@ -3,67 +3,127 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asignar Permisos</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/asignar.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-    <div class="container">
-        <nav class="navbar">
-            <ul>
-                <li><a href="/perfil/">Perfil</a></li>
-                <li><a href="/">Inicio</a></li>
-                {%if perms.app.view_item%}
-                <li><a href="/inventario/">Inventario</a></li>
-                {%endif%}
-                <li><a href="/recetas/">Recetas</a></li>
-                <li><a href="/bitacora/">Bitácora</a></li>
-                {% if perms.app.view_marca %}
-                <li><a href="/marca/">Marca</a></li>
-                {% endif %}
-                {% if perms.app.view_proveedor %}
-                <li><a href="/proveedores/">Proveedores</a></li>
-                {% endif %}
-                {% if perms.app.view_auth_permission %}
-                <li><a href="asignar-permisos/">Permisos</a></li>
-                {% endif %}
-                <li>
-                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
-                </li>
-            </ul>
-        </nav>
-        <br><br><br><br><br>
-        <h1>Asignar Permisos</h1>
-        <br><br>
-        <div class="permisos">
-            <form method="post">
-                {% csrf_token %}
-                <label for="username">Seleccionar Usuario:</label>
-                <select name="username" id="username">
-                    {% for usuario in usuarios %}
-                    <option value="{{ usuario.username }}" {% if usuario.username == selected_username %} selected {% endif %}>{{ usuario.username }}</option>
-                    {% endfor %}
-                </select>
-                
-                {% if selected_user %}
-                <ul>
-                    {% for permiso in selected_user_permissions %}
-                    <li>{{ permiso.name }}</li>
-                    {% empty %}
-                    <li>No hay permisos asignados</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                <label>Seleccionar Permisos:</label><br>
-                <div class="cajapermisos">
-                    {% for permiso in permisos %}
-                    <input type="checkbox" name="permissions" value="{{ permiso.id }}" {% if permiso in selected_user_permissions %} checked {% endif %}> {{ permiso.name }}<br>
-                    {% endfor %}
-                    <br>
+    <nav class="navbar">
+        <ul>
+            <li><a href="/perfil/">Perfil</a></li>
+            <li><a href="/">Inicio</a></li>
+            {% if perms.app.view_item %}
+            <li><a href="/inventario/">Inventario</a></li>
+            {% endif %}
+            {% if perms.app.view_item %}
+            <li><a href="{% url 'listar_items' %}">Items</a></li>
+            {% endif %}
+            <li><a href="/recetas/">Recetas</a></li>
+            <li><a href="/bitacora/">Bitácora</a></li>
+            {% if perms.app.view_marca %}
+            <li><a href="/marca/">Marca</a></li>
+            {% endif %}
+            {% if perms.app.view_proveedor %}
+            <li><a href="/proveedores/">Proveedores</a></li>
+            {% endif %}
+            {% if perms.app.view_auth_permission %}
+            <li><a href="/asignar-permisos/">Permisos</a></li>
+            {% endif %}
+            <li>
+                <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+            </li>
+        </ul>
+    </nav>
+    <br><br><br><br><br>
+    <h1>Asignar Permisos a Usuarios</h1>
+    <br><br>
+    <div class='permisos'>
+    {% if messages %}
+        <ul class="messages">
+            <br><br><br>
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
+    <form method="get">
+        <label for="username">Seleccione un usuario:</label>
+        <select name="username" id="username" onchange="this.form.submit()">
+            <option value="">--Seleccione un usuario--</option>
+            {% for usuario in usuarios %}
+                <option value="{{ usuario.username }}" {% if selected_username == usuario.username %}selected{% endif %}>
+                    {{ usuario.username }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if selected_user %}
+        <h2>Permisos para {{ selected_username }}</h2>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="username" value="{{ selected_username }}">
+            <div class='cajapermisos'>
+            {% for permiso in permisos %}
+                <div>
+                    <input type="checkbox" name="permissions" value="{{ permiso.id }}"
+                           id="permiso_{{ permiso.id }}"
+                           {% if permiso in selected_user_permissions %}checked{% endif %}>
+                    <label for="permiso_{{ permiso.id }}">{{ permiso.name }}</label>
                 </div>
-                <button type="submit">Asignar Permisos</button>
+            {% endfor %}
+            <div>
+                <input type="checkbox" name="is_active" id="is_active" {% if selected_user.is_active %}checked{% endif %}>
+                <label for="is_active">Activo</label>
+            </div>
+            </div>
+            <br>
+            <button type="submit">Guardar</button>
+            <br>
         </form>
+        
+        <form id="delete-user-form" method="post" action="{% url 'asignar_permisos' %}">
+            {% csrf_token %}
+            <input type="hidden" name="username" value="{{ selected_username }}">
+            <input type="hidden" name="delete_user" value="true">
+            <button type="button" class="delete-button" onclick="confirmDelete()">Eliminar Usuario</button>
+        </form>
+    {% endif %}
     </div>
-    </div>
+    <br><br><br>
+
+    <script>
+        function confirmDelete() {
+            Swal.fire({
+                title: '¿Está seguro?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminarlo',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-user-form').submit();
+                }
+            })
+        }
+
+        // Mostrar alerta si hay mensajes de éxito
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: '{{ message }}',
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    });
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </script>
 </body>
 </html>

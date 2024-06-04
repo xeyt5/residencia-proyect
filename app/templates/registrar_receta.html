@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro receta</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_proveedor.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="/perfil/">Perfil</a></li>
+            <li><a href="/">Inicio</a></li>
+            {% if perms.app.view_item %}
+            <li><a href="/inventario/">Inventario</a></li>
+            <li><a href="{% url 'listar_items' %}">Items</a></li>
+            {% endif %}
+            <li><a href="/recetas/">Recetas</a></li>
+            <li><a href="/bitacora/">Bitácora</a></li>
+            {% if perms.app.view_marca %}
+            <li><a href="/marca/">Marca</a></li>
+            {% endif %}
+            {% if perms.app.view_proveedor %}
+            <li><a href="/proveedores/">Proveedores</a></li>
+            {% endif %}
+            {% if perms.app.view_auth_permission %}
+            <li><a href="/asignar-permisos/">Permisos</a></li>
+            {% endif %}
+            <li>
+                <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Salir</a></div>
+            </li>
+        </ul>
+    </nav>
+    <br><br><br><br>
+    <h1>Nueva receta</h1>
+    <form method="POST", id="recetas">
+        {% csrf_token %}
+        <div class="column-left">
+            <label for="contenido">nombre:</label><br>
+            <input type="text" id="contenido" name="contenido"><br>
+            <label for="unidad_medida">descripcion:</label><br>
+            <input type="text" id="unidad_medida" name="unidad_medida"><br>
+            <label for="ubicacion">ingredientes:</label><br>
+            <input type="text" id="ubicacion" name="ubicacion"><br>
+            <label for="nivel">cantidad:</label><br>
+            <input type="text" id="nivel" name="nivel"><br>
+            <label for="marca">sub recetas:</label><br>
+            <input type="text" id="marca" name="marca"><br>
+        </div>
+        <button type="submit">Guardar</button>
+    </form>
+    <br><br>
+    <script>
+        function showConfirmationAlert() {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Se agregará una nueva receta?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, agregar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('recetas').submit();
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

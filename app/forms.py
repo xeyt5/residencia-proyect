@@ -62,11 +62,17 @@ class RegistroForm(forms.ModelForm):
 class marcaform(forms.ModelForm):
     class Meta:
         model = Marca
-        fields = '__all__'
+        fields = ['nombre', 'descripcion']
         
         
 class proveedorForm(forms.ModelForm):
     class Meta:
         model = Proveedor
-        fields = '__all__'
+        fields = ['nombre','descripcion','telefono','correo','url']
+
+class ItemForm(forms.ModelForm):
+    class Meta:
+        model = Item
+        fields = ['nombre', 'contenido', 'unidad_de_medida', 'stock','stock_minimo','types', 'locations', 'marcas', 'proveedores']
+
         

@@ -3,9 +3,9 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import logout, authenticate, login
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 from django.contrib.auth import get_user_model
-from django.contrib import messages
-from .models import Item, Registro, Location, Type, Marca, Proveedor
-from .forms import RegistroForm, marcaform, proveedorForm
+from django.contrib import messages  
+from .models import Item, Registro, Location, Type, Marca, Proveedor, Bitacora, Receta, RecetaItem, RecetaReceta
+from .forms import RegistroForm, marcaform, proveedorForm, ItemForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -16,125 +16,261 @@ from django.contrib.contenttypes.models import ContentType
 @login_required
 def asignar_permisos(request):
     usuarios = User.objects.all()
-    
-    # Filtrar los content types relacionados con tus modelos
+
     content_types = ContentType.objects.filter(
-        app_label='app', 
-        model__in=['location', 'marca', 'proveedor', 'item']
+        app_label='app',
+        model__in=['location', 'marca', 'proveedor', 'item', 'registro']
     )
-    
-    # Obtener los permisos relacionados con los content types filtrados
+
     permisos = Permission.objects.filter(content_type__in=content_types)
-    
+
     if request.method == 'POST':
+        if 'delete_user' in request.POST:
+            username = request.POST.get('username')
+            print(f"Username received for deletion: {username}")
+
+            try:
+                user_to_delete = User.objects.get(username=username)
+                user_to_delete.delete()
+                messages.success(request, f"El usuario '{username}' ha sido eliminado.")
+            except User.DoesNotExist:
+                messages.error(request, f"El usuario '{username}' no existe.")
+            
+            return redirect('asignar_permisos')
+
         username = request.POST.get('username')
-        selected_user = User.objects.get(username=username)
+        print(f"Username received in POST: {username}")
+
+        try:
+            selected_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, f"El usuario '{username}' no existe.")
+            return redirect('asignar_permisos')
+
         permission_ids = request.POST.getlist('permissions')
-        
-        # Primero, eliminamos todos los permisos actuales del usuario
         selected_user.user_permissions.clear()
-        
-        # Luego, asignamos los nuevos permisos seleccionados
+
         for permission_id in permission_ids:
             permission = Permission.objects.get(id=permission_id)
             selected_user.user_permissions.add(permission)
-        
+
+        print(f"is_active: {request.POST.get('is_active')}")
+
+        is_active = 'is_active' in request.POST
+        selected_user.is_active = is_active
+        selected_user.save()
+
         return redirect('asignar_permisos')
-    
+
     selected_username = request.GET.get('username')
+    print(f"Username received in GET: {selected_username}")
+
     selected_user = User.objects.filter(username=selected_username).first()
     selected_user_permissions = selected_user.user_permissions.all() if selected_user else []
-    
+
     return render(request, 'asignar_permisos.html', {
         'usuarios': usuarios,
         'permisos': permisos,
         'selected_username': selected_username,
-        'selected_user_permissions': selected_user_permissions
+        'selected_user_permissions': selected_user_permissions,
+        'selected_user': selected_user
     })
+    
+    
 
+@permission_required('app.view_auth_permission')
+@login_required
+def eliminar_usuario(request, username):
+    try:
+        usuario = User.objects.get(username=username)
+    except User.DoesNotExist:
+        messages.error(request, f"El usuario '{username}' no existe.")
+        return redirect('asignar_permisos')
+
+    if request.method == 'POST':
+        if request.POST.get('confirmar') == 'true':
+            usuario.delete()
+            messages.success(request, f"El usuario '{username}' ha sido eliminado.")
+        else:
+            messages.warning(request, "No se ha eliminado al usuario.")
+        return redirect('asignar_permisos')
+
+    return render(request, 'eliminar_usuario.html', {'usuario': usuario})
 
 
 @login_required
 def index(request):
         return render(request, 'index.html')
-   
- 
+
+@login_required
+@permission_required('app.view_bitacora')
+def bitacora(request):
+    registros = Bitacora.objects.all().order_by('-fecha_hora')
+    return render(request, 'bitacora.html', {'registros': registros})
+
+
+permission_required('app.view_marca')
 @login_required
 def marca(request):
     Marcas = Marca.objects.all()
     return render(request, 'marca.html', {'Marcas':Marcas})
-  
+
+
+@permission_required('app.delete_marca')
 @login_required
 def eliminar_marca(request, marca_id):
     marca = get_object_or_404(Marca, id=marca_id)
     if request.method == 'POST':
-        marca.delete()
-        return JsonResponse({'message': 'Marca eliminada exitosamente'})
+        descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+        usuario = request.user
+
+        # Llama a delete y pasa los argumentos adicionales
+        marca.delete(usuario=usuario, descripcion_personalizada=descripcion_personalizada)
+
+        return JsonResponse({'message': 'Marca eliminada exitosamente', 'usuario': usuario.username})
     else:
-        return JsonResponse({'error': 'Método no permitido'}, status=405) 
+        return JsonResponse({'error': 'Método no permitido'}, status=405)
     
+    
+permission_required('app.add_marca')
 @login_required
 def marcaregistro(request):
     if request.method == 'POST':
         form = marcaform(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('marca') 
+            marca = form.save(commit=False)
+            marca.usuario = request.user
+            marca.save()
+            messages.success(request, 'Se agregó la marca correctamente')
+            return redirect('marca')  
     else:
         form = marcaform()
     return render(request, 'insertar_marca.html', {'form': form})
 
 
+
+@permission_required('app.change_registro')
 @login_required
 def editar_marca(request, marca_id):
     marca = get_object_or_404(Marca, id=marca_id)
     if request.method == 'POST':
         form = marcaform(request.POST, instance=marca)
         if form.is_valid():
-            form.save()
-            return redirect('marca')  
+            marca = form.save(commit=False)
+            marca.usuario = request.user
+            marca.save()
+
+            descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+            if not descripcion_personalizada:
+                messages.warning(request, 'No se proporcionó ninguna descripción personalizada.')
+                Bitacora.objects.create(
+                    accion='Actualizar',
+                    usuario=request.user,
+                    modelo='Marca',
+                    instancia_id=marca.id,
+                    descripcion=f''
+                )
+            else:
+                Bitacora.objects.create(
+                    accion='Actualizar',
+                    usuario=request.user,
+                    modelo='Marca',
+                    instancia_id=marca.id,
+                    descripcion=descripcion_personalizada
+                )
+                messages.success(request, 'Se editó la marca correctamente con la descripción personalizada.')
+
+            return redirect('marca')
     else:
         form = marcaform(instance=marca)
     return render(request, 'editar_marca.html', {'form': form})
     
     
+    
+    
+permission_required('app.view_Proveedor')  
 @login_required
 def provedores(request):
     Proveedores = Proveedor.objects.all()
     return render(request, 'proveedores.html', {'Proveedores':Proveedores})  
 
+
+@permission_required('app.delete_proveedor')
 @login_required
 def eliminar_proveedor(request, proveedor_id):
     proveedor = get_object_or_404(Proveedor, id=proveedor_id)
     if request.method == 'POST':
-        proveedor.delete()
-        return JsonResponse({'message': 'Proveedor eliminado exitosamente'})
+        descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+        usuario = request.user
+
+        # Llama a delete y pasa los argumentos adicionales
+        proveedor.delete(usuario=usuario, descripcion_personalizada=descripcion_personalizada)
+
+        return JsonResponse({'message': 'Proveedor eliminado exitosamente', 'usuario': usuario.username})
     else:
         return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+
+
+
+
+
+
 
 permission_required('app.add_Proveedor')
 @login_required
 def proveedoresregistro(request):
-        if request.method == 'POST':
-         form = proveedorForm(request.POST)
-         if form.is_valid():
-                form.save()
-                return redirect('/proveedores/')
-        else:
-                form = proveedorForm()
-        return render(request, 'proveedoresr.html', {'form': form})
-    
+    if request.method == 'POST':
+        form = proveedorForm(request.POST)
+        if form.is_valid():
+            provedor = form.save(commit=False)
+            provedor.usuario = request.user
+            provedor.save()
+            messages.success(request, 'Se registró correctamente el proveedor')
+            return redirect('/proveedores/')
+    else:
+        form = proveedorForm()
+    return render(request, 'proveedoresr.html', {'form': form})
+
+
+@permission_required('app.change_Proveedor')
 @login_required
 def editar_proveedor(request, proveedor_id):
     proveedor = get_object_or_404(Proveedor, id=proveedor_id)
     if request.method == 'POST':
         form = proveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
-            form.save()
+            proveedor = form.save(commit=False)
+            proveedor.usuario = request.user
+            proveedor.save()
+
+            descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+            if not descripcion_personalizada:
+                messages.warning(request, 'No se proporcionó ninguna descripción personalizada.')
+                Bitacora.objects.create(
+                    accion='Actualizar',
+                    usuario=request.user,
+                    modelo='Proveedor',
+                    instancia_id=proveedor.id,
+                    descripcion=f''
+                )
+            else:
+                Bitacora.objects.create(
+                    accion='Actualizar',
+                    usuario=request.user,
+                    modelo='Proveedor',
+                    instancia_id=proveedor.id,
+                    descripcion=descripcion_personalizada
+                )
+                messages.success(request, 'Se modificó correctamente el proveedor con la descripción personalizada.')
+
             return redirect('/proveedores/')
     else:
         form = proveedorForm(instance=proveedor)
     return render(request, 'editar_proveedor.html', {'form': form})
+
+
 
     
 @login_required
@@ -157,53 +293,41 @@ def perfil(request):
     
     return render(request, 'perfil.html', {'form': form})
 
-@permission_required('app.view_item')
+
+@permission_required('app.view_registro')
 @login_required    
 def inventario(request):
     items = Item.objects.all()
-    registros = Registro.objects.all() 
+    registros = Registro.objects.all()
     types = Type.objects.all()
     locations = Location.objects.all()
     Marcas = Marca.objects.all()
     
-    return render(request, 'inventario.html', {'items': items, 'registros': registros, 'types': types, 'locations': locations, 'Marcas':Marcas})
+    # Pasar la información del stock mínimo
+    items_with_stock_minimo = {item.id: item.stock_minimo for item in items}
+    
+    return render(request, 'inventario.html', {
+        'items': items,
+        'registros': registros,
+        'types': types,
+        'locations': locations,
+        'Marcas': Marcas,
+        'items_with_stock_minimo': items_with_stock_minimo
+    })
 
-@permission_required('app.change_item')
+
+@permission_required('app.change_registro')
 @login_required
-def editar_item(request, registro_id):
+def editar_registro(request, registro_id):
     registro = get_object_or_404(Registro, pk=registro_id)
     item = registro.item
     
-    # Obtener todas las instancias de Type, Location y Marca
     types = Type.objects.all()
     locations = Location.objects.all()
     marcas = Marca.objects.all()
+    items = Item.objects.all()
     
-    # Si el método de la solicitud es POST, significa que se envió el formulario de edición
     if request.method == 'POST':
-        # Actualiza el ítem con los datos del formulario
-        item.nombre = request.POST.get('nombre')
-        item.contenido = request.POST.get('contenido')
-        item.unidad_de_medida = request.POST.get('unidad_medida')
-        item.stock = request.POST.get('stock')
-        
-        # Actualiza las relaciones ManyToMany con los nuevos valores seleccionados
-        tipos_seleccionados = request.POST.getlist('tipo')
-        item.types.set(tipos_seleccionados)
-        
-        ubicaciones_seleccionadas = request.POST.getlist('ubicacion')
-        item.locations.clear()
-        for ubicacion_id in ubicaciones_seleccionadas:
-            ubicacion = Location.objects.get(pk=ubicacion_id)
-            item.locations.add(ubicacion)
-        
-        # Actualiza la marca del ítem
-        marca_id = request.POST.get('marca')
-        marca = Marca.objects.get(pk=marca_id)
-        item.marcas.clear()  # Limpiamos las marcas existentes
-        item.marcas.add(marca)  # Agregamos la nueva marca
-        
-        # Actualiza los campos del registro relacionado
         registro.cod_barras = request.POST.get('cod_barras')
         registro.no_referencia_inv = request.POST.get('no_referencia_inv')
         
@@ -216,62 +340,121 @@ def editar_item(request, registro_id):
             registro.fecha_recepcion = fecha_recepcion
             
         registro.lote = request.POST.get('lote')
-        registro.cantidad = request.POST.get('cantidad')
+        nueva_cantidad = int(request.POST.get('cantidad'))
+        diferencia_cantidad = nueva_cantidad - registro.cantidad
+        
+        registro.cantidad = nueva_cantidad
         registro.cod = request.POST.get('cod')
         registro.status = request.POST.get('status')
+        
+        # Actualizar marca, equipo y nivel
+        marca_id = request.POST.get('marca')
+        equipo_id = request.POST.get('equipo')
+        nivel = request.POST.get('nivel')
+        
+        if marca_id:
+            registro.marca = get_object_or_404(Marca, pk=marca_id)
+        
+        if equipo_id:
+            registro.equipo = get_object_or_404(Location, pk=equipo_id)
+        
+        if nivel:
+            registro.nivel = nivel
+        
         registro.save()
         
+        item.stock += diferencia_cantidad
         item.save()
-        return redirect('/inventario/')  # Ajusta el nombre de la URL según tu configuración
+        messages.success(request, 'Se modifico correctamente el registro')
+        return redirect('/inventario/')  
     
-    return render(request, 'editar_item.html', {'item': item, 'types': types, 'locations': locations, 'marcas': marcas, 'registro': registro})
+    return render(request, 'editar_registro.html', {'registro': registro, 'item': item, 'types': types, 'locations': locations, 'marcas': marcas, 'items': items})
 
 
-
+@permission_required('app.add_registro')
 @login_required
 def registrar_item(request):
-    if request.method == 'POST':
-        form = RegistroForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('/inventario/')
-    else:
-        form = RegistroForm()
-    return render(request, 'item_r.html', {'form': form})
+    types = Type.objects.all()
+    locations = Location.objects.all()
+    marcas = Marca.objects.all()
+    items = Item.objects.all()
 
-permission_required('app.delete_item')
+    if request.method == 'POST':
+        item_id = int(request.POST.get('item'))
+        item = get_object_or_404(Item, pk=item_id)
+
+        cod_barras = request.POST.get('cod_barras')
+        no_referencia_inv = request.POST.get('no_referencia_inv')
+        fecha_caducidad = request.POST.get('fecha_caducidad')
+        lote = request.POST.get('lote')
+        fecha_recepcion = request.POST.get('fecha_recepcion')
+        cantidad = int(request.POST.get('cantidad'))
+        cod = request.POST.get('cod')
+        status = request.POST.get('status')
+
+        # Crear el registro y automáticamente ajustar el stock del item
+        registro = Registro(
+            item=item,
+            cod_barras=cod_barras,
+            no_referencia_inv=no_referencia_inv,
+            fecha_caducidad=fecha_caducidad,
+            lote=lote,
+            fecha_recepcion=fecha_recepcion,
+            cantidad=cantidad,
+            cod=cod,
+            status=status,
+            usuario=request.user
+        )
+        registro.save()
+
+        return redirect('/inventario/')
+
+    return render(request, 'item_r.html', {
+        'types': types,
+        'locations': locations,
+        'marcas': marcas,
+        'items': items
+    })
+
+
+
+
+
+
+@permission_required('app.delete_registro')
 @login_required
-def eliminar_item(request, item_id):
+def eliminar_registro(request, registro_id):
     if request.method == 'POST':
         try:
-            item = Item.objects.get(pk=item_id)
-            item.delete()
-            return redirect('inventario')  # Redirecciona a la página de inventario después de eliminar el ítem
-        except Item.DoesNotExist:
+            registro = get_object_or_404(Registro, pk=registro_id) 
+            registro.usuario = request.user 
+            registro.delete()
+            return redirect('inventario')  
+        except Registro.DoesNotExist:
             pass
-    return redirect('inventario')  # Redirecciona a la página de inventario
-
+    return redirect('inventario')
 
 
 def registro(request):
     if request.method == 'POST':
         formulario = CustomUserCreationForm(data=request.POST)
         if formulario.is_valid():
-            user = formulario.save()
+            user = formulario.save(commit=False)  # Crear la instancia del usuario pero no guardar aún
+            user.is_active = False  # Desactivar el usuario
+            user.save()  # Guardar el usuario con is_active=False
+
             username = formulario.cleaned_data['username']
             password = formulario.cleaned_data['password1']
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                messages.success(request, "Te has registrado correctamente")
-                return redirect('login') 
-            else:
-                messages.error(request, "No se pudo iniciar sesión automáticamente después del registro")
+            # No es necesario autenticar aquí porque el usuario no está activo
+            messages.success(request, "Te has registrado correctamente, pero tu cuenta necesita ser activada por un administrador.")
+            return redirect('login')
         else:
             messages.error(request, "El formulario de registro no es válido")
     else:
         formulario = CustomUserCreationForm()
 
     return render(request, 'registration/registro.html', {'form': formulario})
+
 
 
 User = get_user_model()
@@ -309,3 +492,118 @@ def salir(request):
     logout(request)
     return redirect('/')
 
+
+
+
+@login_required
+def crear_item(request):
+    if request.method == 'POST':
+        form = ItemForm(request.POST)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.usuario = request.user  # Asignar el usuario actual
+            item.save()
+            form.save_m2m()  # Guardar las relaciones ManyToMany después de guardar el item
+
+            messages.success(request, 'El item se ha creado correctamente.')
+            return redirect('listar_items')
+    else:
+        form = ItemForm()
+
+    context = {
+        'form': form,
+        'types': Type.objects.all(),
+        'locations': Location.objects.all(),
+        'marcas': Marca.objects.all(),
+        'proveedores': Proveedor.objects.all(),
+    }
+    return render(request, 'crear_item.html', context)
+
+
+
+@permission_required('app.change_item')
+@login_required
+def editar_item(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+    if request.method == 'POST':
+        form = ItemForm(request.POST, instance=item)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.usuario = request.user
+            item.save()
+
+            descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+            if not descripcion_personalizada:
+                messages.warning(request, 'No se proporcionó ninguna descripción personalizada.')
+                Bitacora.objects.create(
+                    accion='Actualizar',
+                    usuario=request.user,
+                    modelo='Item',
+                    instancia_id=item.id,
+                    descripcion=f''
+                )
+            else:
+                Bitacora.objects.create(
+                    accion='Actualizar',
+                    usuario=request.user,
+                    modelo='Item',
+                    instancia_id=item.id,
+                    descripcion=descripcion_personalizada
+                )
+                messages.success(request, 'Se modificó correctamente el item con la descripción personalizada.')
+
+            return redirect('listar_items')
+    else:
+        form = ItemForm(instance=item)
+    return render(request, 'editar_item.html', {'form': form, 'item': item})
+
+
+
+def listar_items(request):
+    items = Item.objects.all()
+    return render(request, 'listar_items.html', {'items': items})
+
+
+@login_required
+def eliminar_item(request, item_id):
+    item = get_object_or_404(Item, id=item_id)
+    if request.method == 'POST':
+        usuario = request.user
+        descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+
+        # Actualizar el stock del Item
+        for registro in item.registro_set.all():
+            item.stock -= registro.cantidad
+        item.save()
+
+        # Llama a delete y pasa los argumentos adicionales
+        item.delete(usuario=usuario, descripcion_personalizada=descripcion_personalizada)
+
+        return redirect('listar_items')
+    return render(request, 'eliminar_item.html', {'item': item})
+
+
+@permission_required('app.view_receta')
+@login_required
+def recetas(request):
+    recetas = Receta.objects.all()
+    recetas_items = RecetaItem.objects.all()
+    recetas_recetas = RecetaReceta.objects.all()
+    context = {
+        'recetas': recetas,
+        'recetas_items': recetas_items,
+        'recetas_recetas': recetas_recetas
+    }
+    
+    return render(request, 'recetas.html', context)
+
+permission_required('app.add_Recetas')  
+@login_required
+def Recetas_registrar(request):
+    return render(request, 'registrar_receta.html') 
+
+
+permission_required('app.change_Recetas')  
+@login_required
+def Recetas_editar(request):
+    return render(request, 'editar_receta.html') 

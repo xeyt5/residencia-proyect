@@ -1,0 +1,162 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Items</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/marca.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {% if perms.app.view_item %}
+                <li><a href="/inventario/">Inventario</a></li>
+                {% endif %}
+                {% if perms.app.view_item %}
+                <li><a href="{% url 'listar_items' %}">Items</a></li>
+                {% endif %}
+                <li><a href="/recetas/">Recetas</a></li>
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {% if perms.app.view_marca %}
+                <li><a href="/marca/">Marca</a></li>
+                {% endif %}
+                {% if perms.app.view_proveedor %}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {% endif %}
+                {% if perms.app.view_auth_permission %}
+                <li><a href="/asignar-permisos/">Permisos</a></li>
+                {% endif %}
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Salir</a></div>
+                </li>
+            </ul>
+        </nav>
+        <br><br><br><br>
+        <h1>Items</h1>
+        {% if perms.app.add_item %}
+        <button type="button" class='insertar' onclick="window.location.href='{% url 'crear_item' %}'" alt="registrar item">
+            <img src="{% static 'imagenes/insertar.png' %}" class="insertar-imagen" alt="registrar item">
+        </button>
+        {% endif %}
+        <table class="default">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Contenido</th>
+                    <th>Unidad de Medida</th>
+                    <th>Stock</th>
+                    <th>Stock Minimo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>
+                        {% if perms.app.change_item %}
+                        <button type="button" onclick="window.location.href='{% url 'editar_item' item.id %}'" class="editar">
+                            <img src="{% static 'imagenes/editar.png' %}" alt="Editar">
+                        </button>
+                        {% endif %}
+                        <br><br>
+                        {% if perms.app.delete_item %}
+                        <button type="button" class="eliminar" data-item-id="{{ item.id }}">
+                            <img src="{% static 'imagenes/borrar.png' %}" alt="Eliminar">
+                        </button>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.nombre }}</td>
+                    <td>{{ item.contenido }}</td>
+                    <td>{{ item.unidad_de_medida }}</td>
+                    <td>{{ item.stock }}</td>
+                    <td>{{ item.stock_minimo }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.querySelectorAll('.eliminar').forEach(button => {
+            button.addEventListener('click', function() {
+                const itemId = this.getAttribute('data-item-id');
+                Swal.fire({
+                    title: "¿Estás seguro de que quieres eliminarlo?",
+                    text: "Este cambio no se puede revertir",
+                    input: 'textarea',
+                    inputLabel: 'Ingresa una descripción',
+                    inputPlaceholder: 'Escribe el motivo por el que quieres eliminarlo...',
+                    inputAttributes: {
+                        'aria-label': 'Escribe el motivo por el que quieres eliminarlo...'
+                    },
+                    showCancelButton: true,
+                    confirmButtonColor: "#FF1401",
+                    cancelButtonColor: "#458CFA",
+                    confirmButtonText: "Eliminar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const csrftoken = getCookie('csrftoken');
+                        const formData = new FormData();
+                        formData.append('descripcion_personalizada', result.value);
+                        fetch(`/eliminar-item/${itemId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrftoken,
+                            },
+                            body: formData
+                        }).then(response => {
+                            if (response.ok) {
+                                Swal.fire({
+                                    title: "¡Eliminado!",
+                                    text: "El item ha sido eliminado.",
+                                    icon: "success"
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                console.error('Error al eliminar el item');
+                            }
+                        }).catch(error => {
+                            console.error('Error al eliminar el item:', error);
+                        });
+                    }
+                });
+            });
+        });
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: '{{ message }}',
+                        icon: 'success',
+                        confirmButtonText: 'Ok'
+                    });
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </script>
+</body>
+</html>

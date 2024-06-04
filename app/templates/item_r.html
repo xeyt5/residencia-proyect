@@ -1,20 +1,21 @@
-{%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Registro de Item</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/editar_proveedor.css' %}">
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <nav class="navbar">
         <ul>
             <li><a href="/perfil/">Perfil</a></li>
             <li><a href="/">Inicio</a></li>
-            {%if perms.app.view_item%}
+            {% if perms.app.view_item %}
             <li><a href="/inventario/">Inventario</a></li>
-            {%endif%}
+            <li><a href="{% url 'listar_items' %}">Items</a></li>
+            {% endif %}
             <li><a href="/recetas/">Recetas</a></li>
             <li><a href="/bitacora/">Bitácora</a></li>
             {% if perms.app.view_marca %}
@@ -24,19 +25,70 @@
             <li><a href="/proveedores/">Proveedores</a></li>
             {% endif %}
             {% if perms.app.view_auth_permission %}
-            <li><a href="asignar-permisos/">Permisos</a></li>
+            <li><a href="/asignar-permisos/">Permisos</a></li>
             {% endif %}
             <li>
-                <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+                <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Salir</a></div>
             </li>
         </ul>
     </nav>
     <br><br><br><br>
-    <h1>Registro de Item</h1>
+    <h1>Registrar Nuevo Item</h1>
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="column-left">
+            <label for="item">Nombre:</label><br>
+            <select id="item" name="item">
+                {% for item in items %}
+                <option value="{{ item.id }}" data-contenido="{{ item.contenido }}" data-unidad_medida="{{ item.unidad_de_medida }}" data-locations="{{ item.locations.all|join:', ' }}" data-marcas="{{ item.marcas.all|join:', ' }}">
+                    {{ item.nombre }}
+                </option>
+                {% endfor %}
+            </select><br>
+            <label for="contenido">Contenido:</label><br>
+            <input type="text" id="contenido" name="contenido" readonly><br>
+            <label for="unidad_medida">Unidad de Medida:</label><br>
+            <input type="text" id="unidad_medida" name="unidad_medida" readonly><br>
+            <label for="ubicacion">Ubicación:</label><br>
+            <input type="text" id="ubicacion" name="ubicacion" readonly><br>
+            <label for="nivel">nivel:</label><br>
+            <input type="text" id="nivel" name="nivel" readonly><br>
+            <label for="marca">Marca:</label><br>
+            <input type="text" id="marca" name="marca" readonly><br>
+        </div>
+        <div class="column-right">
+            <label for="cod_barras">Código de Barras:</label><br>
+            <input type="text" id="cod_barras" name="cod_barras"><br>
+            <label for="no_referencia_inv">Número de Referencia:</label><br>
+            <input type="text" id="no_referencia_inv" name="no_referencia_inv"><br>
+            <label for="fecha_caducidad">Fecha de Caducidad:</label><br>
+            <input type="date" id="fecha_caducidad" name="fecha_caducidad"><br>
+            <label for="lote">Lote:</label><br>
+            <input type="text" id="lote" name="lote"><br>
+            <label for="fecha_recepcion">Fecha de Recepción:</label><br>
+            <input type="date" id="fecha_recepcion" name="fecha_recepcion"><br>
+            <label for="cantidad">Cantidad:</label><br>
+            <input type="text" id="cantidad" name="cantidad"><br>
+            <label for="cod">Cod:</label><br>
+            <input type="text" id="cod" name="cod"><br>
+            <label for="status">Status:</label><br>
+            <input type="text" id="status" name="status"><br>
+        </div>
         <button type="submit">Guardar</button>
     </form>
+    <br><br><br>
+    <script>
+        document.getElementById('item').addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            document.getElementById('contenido').value = selectedOption.getAttribute('data-contenido');
+            document.getElementById('unidad_medida').value = selectedOption.getAttribute('data-unidad_medida');
+            document.getElementById('ubicacion').value = selectedOption.getAttribute('data-locations');
+            document.getElementById('nivel').value = selectedOption.getAttribute('data-nivel');
+            document.getElementById('marca').value = selectedOption.getAttribute('data-marcas');
+        });
+        // Trigger change event on page load to populate fields
+        document.getElementById('item').dispatchEvent(new Event('change'));
+    </script>
+
 </body>
 </html>

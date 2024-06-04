@@ -105,12 +105,27 @@ body{
   
   button {
     margin-top: 20px;
+    width: 150px;
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     background-color: #007904;
     color: white;
     cursor: pointer;
+    display: block;
+    margin: auto;
+  }
+
+  .delete-button{
+    background-color: #b11f1f;
+  }
+  .delete-button:hover{
+    background-color: #ff0000;
+    color: rgb(0, 0, 0);
+  }
+
+  li.success{
+    display: none;
   }
   
   button:hover {
@@ -119,12 +134,14 @@ body{
   }
 
   select#username{
-    height: 42px;
-    border-radius: 16px;
+    height: 40px;
+    border-radius: 5px;
     text-align: center;
     font-family: inherit;
     font-size: x-large;
-    width: 100%;
+    width: 45%;
+    display: block;
+    margin: 0 auto;  
   }
 
 
@@ -133,7 +150,7 @@ body{
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(6, 4fr);
+  grid-template-columns: repeat(3, 4fr);
   grid-gap: 5px;
 }
 

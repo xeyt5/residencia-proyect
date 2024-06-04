@@ -66,24 +66,31 @@ table {
     height: 80%;
     border-collapse: collapse;
     margin-top: 60px;
+
 }
 
-th, td {
-    padding: 8px;
+td {
+    padding: 5px;
     text-align: center;
-    border-bottom: 1px solid rgba(194, 192, 192, 0.356)
+    border-bottom: 1px solid rgb(0, 0, 0);
+    cursor: pointer;
+}
+th{
+    padding: 5px;
+    text-align: center;
+    border-bottom: 0px solid rgb(0, 0, 0);
 }
 
 th {
     background-color: #8E7A00;
-    color: rgb(0, 0, 0);
     position: sticky;
     top: 0;
 }
 
 
+
 tr:hover {
-    background-color: #bebdbd9f;
+    background-color: #1a1a1a9f;
 }
 
 
@@ -103,10 +110,12 @@ tr:hover {
 }
 
 .search-bar input[type="text"] {
-    border: 3px solid #ccc;
-    border-radius: 9px;
-    padding: 7px 13px;
+    position: relative;
+    border: 3px solid #070707;
+    border-radius: 4px;
+    padding: 9px 13px;
     width: 100%;
+    margin-top: 49%;
 }
 
 
@@ -150,11 +159,12 @@ table.default td button {
 
 
 .caducidad-cercana {
-    background-color: #ff4c4c8c; 
+    background-color: #ff4c4c; 
+    color: rgb(0, 0, 0);
 }
 
 .caducidad-media {
-    background-color: #ffff0098; 
+    background-color: #ffff00; 
 }
 
 .eliminar {
@@ -190,14 +200,15 @@ table.default td button {
 
 
 .insertar{
-    width: 45px;
-    position: static;
+    width: 49px;
+    position: relative;
     margin-right: 1%;
     cursor: pointer;
     background-color: rgb(67, 134, 0);
     border-radius: 6px;
-    margin-bottom: 1%;
-    margin-left: 2%;
+    margin-bottom: -1%;
+    margin-left: .4%;
+    margin-top: 3%;
 }
 
 .insertar:hover{
@@ -209,3 +220,69 @@ table.default td button {
     height: 20px;
 }
 
+.navbar ul ul {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+}
+
+.navbar ul li:hover > ul {
+    display: inherit !important;
+}
+
+h1 {
+    font-size: 70px;
+    position: sticky;
+    text-align: center;
+    display: block;
+    margin: auto;
+    font-family: sans-serif;
+}
+
+.color_p{
+    position: absolute;
+    margin-left: 44%;
+    margin-top: 6%;
+    
+}
+
+.color-rojo{
+    position: absolute;
+    background-color: red;
+    width: 20px;
+    height: 20px;
+    margin-left: 0px;
+    border-radius: 5px;
+}
+p{
+    display: inline;
+    text-align: center;
+    font-family: sans-serif;
+    margin-left: 24px;
+}
+
+
+.color_a{
+    position: absolute;
+    margin-left: 51%;
+    margin-top: 6%;
+    
+}
+
+.color-amarillo{
+    position: absolute;
+    background-color: rgb(229, 255, 0);
+    width: 20px;
+    height: 20px;
+    margin-left: 0px;
+    border-radius: 5px;
+}
+.ama{
+    display: inline;
+    text-align: center;
+    font-family: sans-serif;
+    margin-left: 24px;
+}
+
+.stock-bajo { color: rgb(255, 255, 255); }

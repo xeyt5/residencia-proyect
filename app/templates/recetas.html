@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/marca.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Recetas</title>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {% if perms.app.view_registro %}
+                <li><a href="/inventario/">Inventario</a></li>
+                {% endif %}
+                {% if perms.app.view_item %}
+                <li><a href="{% url 'listar_items' %}">Items</a></li>  
+                {% endif %}
+                <li><a href="/recetas/">Recetas</a></li>
+                {% if perms.app.view_bitacora %}
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {% endif %}
+                {% if perms.app.view_marca %}
+                <li><a href="/marca/">Marca</a></li>
+                {% endif %}
+                {% if perms.app.view_proveedor %}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {% endif %}
+                {% if perms.app.view_auth_permission %}
+                <li><a href="/asignar-permisos/">Permisos</a></li>
+                {% endif %}
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+                </li>
+            </ul>
+        </nav>
+        <br><br><br><br>
+        <h1>Recetas</h1>
+        <button type="button" class='insertar' onclick="window.location.href='{% url 'registrar_receta' %}'" alt="registrar receta">
+            <img src="{% static 'imagenes/insertar.png' %}" class="insertar-imagen" alt="registrar item">
+        </button>
+        <table class="default">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Ingredientes</th>
+                    <th>Sub Recetas</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for receta in recetas %}
+                <tr>
+                    <td>{{ receta.id }}</td>
+                    <td>{{ receta.nombre }}</td>
+                    <td>{{ receta.descripcion }}</td>
+                    <td>
+                        <ul>
+                            {% for receta_item in receta.recetaitem_set.all %}
+                            <li>{{ receta_item.item.nombre }}: {{ receta_item.cantidad }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            {% for receta_receta in receta.receta_principal.all %}
+                            <li>{{ receta_receta.subreceta.nombre }}: {{ receta_receta.cantidad }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        <button type="button" onclick="window.location.href='{% url 'recetas_edit' receta.id %}'" class="editar">
+                            <img src="{% static 'imagenes/editar.png' %}" alt="Editar">
+                        </button>
+                        <br><br>
+                        <button type="button" class="eliminar" data-receta-id="{{ receta.id }}">
+                            <img src="{% static 'imagenes/borrar.png' %}" alt="Eliminar">
+                        </button>
+                        <br><br>
+                        <button type="button" class="usar-receta" data-receta-id="{{ receta.id }}">
+                            Usar Receta
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>   
+</body>
+</html>

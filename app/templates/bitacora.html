@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bitácora</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/marca.css' %}">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {% if perms.app.view_item %}
+                <li><a href="/inventario/">Inventario</a></li>
+                {% endif %}
+                {% if perms.app.view_item %}
+                <li><a href="{% url 'listar_items' %}">Items</a></li>
+                {% endif %}
+                <li><a href="/recetas/">Recetas</a></li>
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {% if perms.app.view_marca %}
+                <li><a href="/marca/">Marca</a></li>
+                {% endif %}
+                {% if perms.app.view_proveedor %}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {% endif %}
+                {% if perms.app.view_auth_permission %}
+                <li><a href="/asignar-permisos/">Permisos</a></li>
+                {% endif %}
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Salir</a></div>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <br><br><br>
+    <h1>Bitácora de Actividades</h1>
+
+    <table class="default">
+        <thead>
+            <tr>
+                <th>Acción</th>
+                <th>Usuario</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Tabla</th>
+                <th>ID Instancia</th>
+                <th>Descripción</th>
+            </tr>
+            <tr>
+                <th><input type="text" id="accion-filter" placeholder="Filtrar por Acción"></th>
+                <th><input type="text" id="usuario-filter" placeholder="Filtrar por Usuario"></th>
+                <th><input type="text" id="fecha-filter" placeholder="Filtrar por Fecha"></th>
+                <th><input type="text" id="hora-filter" placeholder="Filtrar por Hora"></th>
+                <th><input type="text" id="modelo-filter" placeholder="Filtrar por Tabla"></th>
+                <th><input type="text" id="instancia-id-filter" placeholder="Filtrar por ID"></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for registro in registros %}
+            <tr>
+                <td>{{ registro.accion }}</td>
+                <td>{% if registro.usuario %}{{ registro.usuario.username }}{% else %}N/A{% endif %}</td>
+                <td>{{ registro.fecha|date:"d/m/Y" }}</td>
+                <td>{{ registro.hora }}</td>
+                <td>{{ registro.modelo }}</td>
+                <td>{{ registro.instancia_id }}</td>
+                <td>{{ registro.descripcion }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function() {
+            $("#fecha-filter").datepicker({
+                dateFormat: "dd-mm-yy",
+                onSelect: function(dateText) {
+                    filterTable();
+                }
+            });
+
+            function filterTable() {
+                var accionFilter = $('#accion-filter').val().toLowerCase();
+                var usuarioFilter = $('#usuario-filter').val().toLowerCase();
+                var fechaFilter = $('#fecha-filter').val();
+                var horaFilter = $('#hora-filter').val().toLowerCase();
+                var modeloFilter = $('#modelo-filter').val().toLowerCase();
+                var instanciaIdFilter = $('#instancia-id-filter').val().toLowerCase();
+
+                $('table.default tbody tr').each(function() {
+                    var accionText = $(this).find('td:nth-child(1)').text().toLowerCase();
+                    var usuarioText = $(this).find('td:nth-child(2)').text().toLowerCase();
+                    var fechaText = $(this).find('td:nth-child(3)').text();
+                    var horaText = $(this).find('td:nth-child(4)').text().toLowerCase();
+                    var modeloText = $(this).find('td:nth-child(5)').text().toLowerCase();
+                    var instanciaIdText = $(this).find('td:nth-child(6)').text().toLowerCase();
+
+                    var showRow = true;
+                    if (accionFilter && !accionText.includes(accionFilter)) showRow = false;
+                    if (usuarioFilter && !usuarioText.includes(usuarioFilter)) showRow = false;
+                    if (fechaFilter && fechaText !== fechaFilter) showRow = false;
+                    if (horaFilter && !horaText.includes(horaFilter)) showRow = false;
+                    if (modeloFilter && !modeloText.includes(modeloFilter)) showRow = false;
+                    if (instanciaIdFilter && !instanciaIdText.includes(instanciaIdFilter)) showRow = false;
+
+                    if (showRow) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            }
+
+            $('#accion-filter').on('input', filterTable);
+            $('#usuario-filter').on('input', filterTable);
+            $('#hora-filter').on('input', filterTable);
+            $('#modelo-filter').on('input', filterTable);
+            $('#instancia-id-filter').on('input', filterTable);
+        });
+    </script>
+</body>
+</html>

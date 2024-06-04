@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Perfil</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/perfil.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_proveedor.css' %}">
 </head>
 <body>
     <div class="container">
@@ -15,6 +15,9 @@
                 {%if perms.app.view_item%}
                 <li><a href="/inventario/">Inventario</a></li>
                 {%endif%}
+                {% if perms.app.view_item %}
+                <li><a href="{% url 'listar_items' %}">Items</a></li>  <!-- Enlace para listar items -->
+                {% endif %}
                 <li><a href="/recetas/">Recetas</a></li>
                 <li><a href="/bitacora/">Bitácora</a></li>
                 {% if perms.app.view_marca %}
@@ -24,7 +27,7 @@
                 <li><a href="/proveedores/">Proveedores</a></li>
                 {% endif %}
                 {% if perms.app.view_auth_permission %}
-                <li><a href="asignar-permisos/">Permisos</a></li>
+                <li><a href="/asignar-permisos/">Permisos</a></li>
                 {% endif %}
                 <li>
                     <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
@@ -32,7 +35,9 @@
             </ul>
         </nav>
         <div class="contenido">
+            <br><br><br><br>
             <h1>BIENVENIDO {{ request.user.username.upper }}</h1>
+            <br><br>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <form method="post" enctype="multipart/form-data">

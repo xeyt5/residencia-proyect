@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Item</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_proveedor.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <script>
+        function showConfirmationAlert() {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'Se agregará un nuevo item',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, agregar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('itemForm').submit();
+                }
+            });
+        }
+    </script>
+    <nav class="navbar">
+        <!-- Código de la barra de navegación -->
+    </nav>
+
+    <br><br><br>
+    <h1>Crear Item</h1>
+    <form method="POST" id="itemForm">
+        {% csrf_token %}
+        <div>
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" name="nombre" required>
+        </div>
+        <div>
+            <label for="contenido">Contenido:</label>
+            <input type="text" id="contenido" name="contenido" required>
+        </div>
+        <div>
+            <label for="unidad_de_medida">Unidad de Medida:</label>
+            <input type="text" id="unidad_de_medida" name="unidad_de_medida" required>
+        </div>
+        <div>
+            <label for="stock">Stock:</label>
+            <input type="number" id="stock" name="stock" required>
+        </div>
+        <div>
+            <label for="stock_minimo">Stock Mínimo:</label>
+            <input type="number" id="stock_minimo" name="stock_minimo" required>
+        </div>
+        <div>
+            <label for="types">Tipo:</label>
+            <select id="types" name="types" required>
+                {% for type in types %}
+                <option value="{{ type.id }}">{{ type.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="locations">Ubicación:</label>
+            <select id="locations" name="locations" required onchange="changeLocation()">
+                {% for location in locations %}
+                <option value="{{ location.id }}" data-nivel="{{ location.nivel }}">{{ location.equipo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="nivel">Nivel:</label>
+            <input type="text" id="nivel" name="nivel" disabled>
+        </div>
+        <div>
+            <label for="marcas">Marca:</label>
+            <select id="marcas" name="marcas" required>
+                {% for marca in marcas %}
+                <option value="{{ marca.id }}">{{ marca.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="proveedores">Proveedor:</label>
+            <select id="proveedores" name="proveedores" required>
+                {% for proveedor in proveedores %}
+                <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="button" onclick="showConfirmationAlert()">Guardar</button>
+    </form>
+
+    <script>
+        function changeLocation() {
+            var selectElement = document.getElementById('locations');
+            var nivelElement = document.getElementById('nivel');
+            var selectedOption = selectElement.options[selectElement.selectedIndex];
+            var nivel = selectedOption.getAttribute('data-nivel');
+            nivelElement.value = nivel;
+        }
+    </script>
+</body>
+</html>

@@ -83,18 +83,65 @@ label {
   display: block;
   margin-bottom: 5px; 
 }
-input[type="text"], input[type="email"], textarea, #tipo, #ubicacion, #marca, #fecha_recepcion, #fecha_caducidad{
+input[type="text"], input[type="email"]{
   width: 96%;
   padding: 10px;
   margin-bottom: 10px; 
   border: 1px solid #ccc;
 }
 
+#tipo, #ubicacion, #marca{
+  width: 99%;
+  padding: 10px;
+  margin-bottom: 10px; 
+  border: 1px solid #ccc;
+}
+
+span{
+  width: 96%;
+  padding: 10px;
+  margin-bottom: 10px; 
+  border: 1px solid #ccc;
+  display: block;
+}
+
+#id_contenido, #id_stock, #id_types, #id_locations, #id_marcas, #id_proveedores, #fecha_recepcion, #fecha_caducidad{
+  width: 96%;
+  padding: 10px;
+  margin-bottom: 10px; 
+  border: 1px solid #ccc;
+  font-family: sans-serif;
+  font-size: 15px;
+}
+
+#nombre, #unidad_medida,#contenido, #ubicacion, #nivel{
+  width: 96%;
+  padding: 10px;
+  background-color: #d6d6d6a8;
+  margin-bottom: 10px; 
+  border: 1px solid #ccc;
+  font-family: sans-serif;
+  font-size: 15px;
+  cursor: default;
+}
+#tipo, #marca{
+  width: 99%;
+  padding: 10px;
+  background-color: #d6d6d6a8;
+  margin-bottom: 10px; 
+  border: 1px solid #ccc;
+  font-family: sans-serif;
+  font-size: 15px;
+  cursor: default;
+
+}
+
+
 #id_descripcion{
   height: 80px;
 }
 
-button[type="submit"] {
+[type="submit"] {
   background-color: #4CAF50;
   color: #fff;
   padding: 10px 20px;
@@ -102,6 +149,6 @@ button[type="submit"] {
   border-radius: 5px;
   cursor: pointer;
 }
-button[type="submit"]:hover {
+[type="submit"]:hover {
   background-color: #3e8e41;
 }

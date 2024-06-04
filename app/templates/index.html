@@ -13,11 +13,16 @@
             <ul>
                 <li><a href="/perfil/">Perfil</a></li>
                 <li><a href="/">Inicio</a></li>
-                {%if perms.app.view_item%}
+                {%if perms.app.view_registro%}
                 <li><a href="/inventario/">Inventario</a></li>
                 {%endif%}
+                {% if perms.app.view_item %}
+                <li><a href="{% url 'listar_items' %}">Items</a></li>  
+                {% endif %}
                 <li><a href="/recetas/">Recetas</a></li>
+                {% if perms.app.view_bitacora %}
                 <li><a href="/bitacora/">Bitácora</a></li>
+                {% endif %}
                 {% if perms.app.view_marca %}
                 <li><a href="/marca/">Marca</a></li>
                 {% endif %}
@@ -25,7 +30,7 @@
                 <li><a href="/proveedores/">Proveedores</a></li>
                 {% endif %}
                 {% if perms.app.view_auth_permission %}
-                <li><a href="asignar-permisos/">Permisos</a></li>
+                <li><a href="/asignar-permisos/">Permisos</a></li>
                 {% endif %}
                 <li>
                     <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
@@ -33,16 +38,15 @@
             </ul>
         </nav>
         <div class="bienvenida">
-            <h1>BIENVENIDO {{ request.user.username.upper }}</h1>
+            <h1>BIENVENID@ {{ request.user.username.upper }}</h1>
             <h2>sistema de Inventario</h2>
             <img src="{% static 'imagenes/video.png' %}" alt="logo de la uusmb" class="video">
         </div>
         <img src="{% static 'imagenes/uusmb.png' %}" alt="logo de la uusmb" class="logo">
     
         <p>______________________________________________________________________________________</p><br><br>
-        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sequi ut eius eveniet fugit<br>
-        odio amet fugiat molestias consequatur vero, repellat numquam tempore minima<br> officia enim aspernatur accusamus
-        ipsam voluptas veniam!</p>
+        <p>Este es un sistema de Inventarios para la unidad universitaria de secuenciacion masiva <br>y bioinformatica
+        donde sirve para tener un control sobre todo los reactivos que entran <br>a la unidad y asi llevar un mejor control sobre todos estos reactivos</p>
     </div>
 </body>
 </html>

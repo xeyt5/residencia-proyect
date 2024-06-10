@@ -48,9 +48,11 @@ urlpatterns = [
     path('crear-item/', views.crear_item, name='crear_item'),
     path('eliminar-item/<int:item_id>/', views.eliminar_item, name='eliminar_item'),
     path('editar-item/<int:item_id>/', views.editar_item, name='editar_item'),
-    path('recetas/', views.recetas, name='recetas'),
     path('recetas_edit/', views.Recetas_editar, name='recetas_edit'),
-    path('registrar-receta/', views.Recetas_registrar, name='registrar_receta')
+    path('recetas/', views.recetas, name='recetas'),
+    path('registrar-receta/', views.Recetas_registrar, name='registrar_receta'),
+    path('usar-receta/', views.usar_receta, name='usar_receta'), 
+    path('eliminar-receta/<int:receta_id>/', views.eliminar_receta, name='eliminar_receta'),
     
 ]
 

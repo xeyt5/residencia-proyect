@@ -118,9 +118,11 @@ class RecetaItem(models.Model):
     receta = models.ForeignKey(Receta, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     cantidad = models.IntegerField()
+    registro = models.ForeignKey(Registro, on_delete=models.CASCADE, null=True, blank=True)  # Temporalmente permitir nulo
 
     def __str__(self):
-        return f'{self.cantidad} de {self.item} en {self.receta}'
+        return f'{self.cantidad} de {self.item} en {self.receta} (Registro ID: {self.registro.id if self.registro else "N/A"})'
+
 
 class RecetaReceta(models.Model):
     receta = models.ForeignKey(Receta, on_delete=models.CASCADE, related_name='receta_principal')

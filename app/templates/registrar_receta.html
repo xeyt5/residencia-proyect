@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Registro receta</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_proveedor.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/recetas_r.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
@@ -34,28 +34,47 @@
     </nav>
     <br><br><br><br>
     <h1>Nueva receta</h1>
-    <form method="POST", id="recetas">
+    <form method="POST" id="recetas">
         {% csrf_token %}
         <div class="column-left">
-            <label for="contenido">nombre:</label><br>
-            <input type="text" id="contenido" name="contenido"><br>
-            <label for="unidad_medida">descripcion:</label><br>
-            <input type="text" id="unidad_medida" name="unidad_medida"><br>
-            <label for="ubicacion">ingredientes:</label><br>
-            <input type="text" id="ubicacion" name="ubicacion"><br>
-            <label for="nivel">cantidad:</label><br>
-            <input type="text" id="nivel" name="nivel"><br>
-            <label for="marca">sub recetas:</label><br>
-            <input type="text" id="marca" name="marca"><br>
+            <label for="nombre">Nombre:</label><br>
+            <input type="text" id="nombre" name="nombre"><br>
+            <label for="descripcion">Descripción:</label><br>
+            <input type="text" id="descripcion" name="descripcion"><br>
+            <label for="ingredientes">Ingredientes:</label><br>
+            <div id="ingredientes-container">
+                <div class="ingrediente">
+                    <select name="ingredientes">
+                        {% for registro in registros %}
+                        <option value="{{ registro.id }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="cantidades" placeholder="Cantidad" class="cantidad">
+                </div>
+            </div>
+            <button type="button" class='ingrediente' onclick="addIngrediente()">Agregar ingrediente</button><br><br>
+            <label for="subrecetas">Sub Recetas:</label><br>
+            <div id="subrecetas-container">
+                <div class="subreceta">
+                    <select name="subrecetas">
+                        {% for receta in recetas %}
+                        <option value="{{ receta.id }}">{{ receta.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="subcantidades" placeholder="Cantidad">
+                </div>
+            </div>
+            <button type="button" class="sub" onclick="addSubreceta()">Agregar sub receta</button><br>
         </div>
-        <button type="submit">Guardar</button>
+        <br>
+        <button type="button" class="guardar" onclick="showConfirmationAlert()">Guardar</button>
     </form>
     <br><br>
     <script>
         function showConfirmationAlert() {
             Swal.fire({
                 title: '¿Estás seguro?',
-                text: 'Se agregará una nueva receta?',
+                text: 'Se agregará una nueva receta',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -68,7 +87,36 @@
                 }
             });
         }
-    </script>
 
+        function addIngrediente() {
+            const container = document.getElementById('ingredientes-container');
+            const ingredienteDiv = document.createElement('div');
+            ingredienteDiv.className = 'ingrediente';
+            ingredienteDiv.innerHTML = `
+                <select name="ingredientes">
+                    {% for registro in registros %}
+                    <option value="{{ registro.id }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="cantidades" placeholder="Cantidad">
+            `;
+            container.appendChild(ingredienteDiv);
+        }
+
+        function addSubreceta() {
+            const container = document.getElementById('subrecetas-container');
+            const subrecetaDiv = document.createElement('div');
+            subrecetaDiv.className = 'subreceta';
+            subrecetaDiv.innerHTML = `
+                <select name="subrecetas">
+                    {% for receta in recetas %}
+                    <option value="{{ receta.id }}">{{ receta.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="subcantidades" placeholder="Cantidad">
+            `;
+            container.appendChild(subrecetaDiv);
+        }
+    </script>
 </body>
 </html>

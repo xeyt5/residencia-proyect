@@ -9,6 +9,8 @@ from .forms import RegistroForm, marcaform, proveedorForm, ItemForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
+from django.views.decorators.http import require_POST
 
 # Create your views here.
 
@@ -597,13 +599,140 @@ def recetas(request):
     
     return render(request, 'recetas.html', context)
 
-permission_required('app.add_Recetas')  
+
+
+
+@permission_required('app.add_receta')
 @login_required
 def Recetas_registrar(request):
-    return render(request, 'registrar_receta.html') 
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        ingredientes = request.POST.getlist('ingredientes')
+        cantidades = request.POST.getlist('cantidades')
+        subrecetas = request.POST.getlist('subrecetas')
+        subcantidades = request.POST.getlist('subcantidades')
+
+        receta = Receta(nombre=nombre, descripcion=descripcion)
+        receta.save()
+
+        for i in range(len(ingredientes)):
+            try:
+                registro = Registro.objects.get(pk=ingredientes[i])
+                item = registro.item
+                cantidad = int(cantidades[i])
+                RecetaItem.objects.create(receta=receta, item=item, cantidad=cantidad, registro=registro)
+            except Registro.DoesNotExist:
+                messages.error(request, f'Error: El Registro con ID {ingredientes[i]} no existe.')
+
+        for i in range(len(subrecetas)):
+            if subrecetas[i] and subcantidades[i]:  # Verifica que subrecetas[i] y subcantidades[i] no estén vacíos
+                try:
+                    subreceta = Receta.objects.get(pk=subrecetas[i])
+                    cantidad = int(subcantidades[i])
+                    RecetaReceta.objects.create(receta=receta, subreceta=subreceta, cantidad=cantidad)
+                except Receta.DoesNotExist:
+                    messages.error(request, f'Error: La Subreceta con ID {subrecetas[i]} no existe.')
+
+        messages.success(request, 'Receta registrada exitosamente')
+        return redirect('/recetas/')  # Redirige a la vista de recetas después de registrar
+
+    registros = Registro.objects.all()  # Obtén todos los registros disponibles
+    recetas = Receta.objects.all()
+
+    context = {
+        'registros': registros,
+        'recetas': recetas
+    }
+
+    return render(request, 'registrar_receta.html', context)
+
+
+
 
 
 permission_required('app.change_Recetas')  
 @login_required
 def Recetas_editar(request):
     return render(request, 'editar_receta.html') 
+
+
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required, permission_required
+from django.http import JsonResponse
+from django.db import transaction
+import json
+
+@require_POST
+@permission_required('app.add_receta')  # Ajusta los permisos según sea necesario
+@login_required
+def usar_receta(request):
+    try:
+        data = json.loads(request.body)
+        receta_id = data.get('recetaId')
+        if not receta_id:
+            return JsonResponse({'error': 'No se proporcionó una receta válida'}, status=400)
+
+        receta = Receta.objects.get(id=receta_id)
+
+        # Inicia una transacción para garantizar la integridad de los datos
+        with transaction.atomic():
+            # Descontar los ingredientes de la receta
+            for receta_item in receta.recetaitem_set.all():
+                item = receta_item.item
+                cantidad_requerida = receta_item.cantidad
+                registro = receta_item.registro
+
+                if registro.cantidad >= cantidad_requerida:
+                    registro.cantidad -= cantidad_requerida
+                    registro.save()
+                else:
+                    return JsonResponse({'error': f'No hay suficiente stock en el registro ID {registro.id} para {item.nombre}'}, status=400)
+
+                if item.stock < cantidad_requerida:
+                    return JsonResponse({'error': f'No hay suficiente stock de {item.nombre}'}, status=400)
+                
+                item.stock -= cantidad_requerida
+                item.save()
+
+            # Descontar las subrecetas de la receta
+            for receta_receta in receta.receta_principal.all():
+                subreceta = receta_receta.subreceta
+                cantidad_requerida = receta_receta.cantidad
+                registro = subreceta.recetaitem_set.first().registro  # Suponiendo que hay una relación similar para subrecetas
+
+                if registro.cantidad >= cantidad_requerida:
+                    registro.cantidad -= cantidad_requerida
+                    registro.save()
+                else:
+                    return JsonResponse({'error': f'No hay suficiente stock en el registro ID {registro.id} para {subreceta.nombre}'}, status=400)
+
+                if subreceta.stock < cantidad_requerida:
+                    return JsonResponse({'error': f'No hay suficiente stock de {subreceta.nombre}'}, status=400)
+                
+                subreceta.stock -= cantidad_requerida
+                subreceta.save()
+
+        return JsonResponse({'success': True})
+    except Receta.DoesNotExist:
+        return JsonResponse({'error': 'La receta especificada no existe'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+
+    
+    
+    
+@permission_required('app.delete_receta')
+@login_required
+def eliminar_receta(request, receta_id):
+    receta = get_object_or_404(Receta, id=receta_id)
+    if request.method == 'POST':
+        usuario = request.user
+
+        # Eliminar la receta
+        receta.delete()
+
+        return JsonResponse({'message': 'Receta eliminada exitosamente', 'usuario': usuario.username})
+    else:
+        return JsonResponse({'error': 'Método no permitido'}, status=405)

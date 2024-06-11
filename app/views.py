@@ -699,19 +699,24 @@ def usar_receta(request):
             for receta_receta in receta.receta_principal.all():
                 subreceta = receta_receta.subreceta
                 cantidad_requerida = receta_receta.cantidad
-                registro = subreceta.recetaitem_set.first().registro  # Suponiendo que hay una relación similar para subrecetas
-
-                if registro.cantidad >= cantidad_requerida:
-                    registro.cantidad -= cantidad_requerida
-                    registro.save()
-                else:
-                    return JsonResponse({'error': f'No hay suficiente stock en el registro ID {registro.id} para {subreceta.nombre}'}, status=400)
-
-                if subreceta.stock < cantidad_requerida:
-                    return JsonResponse({'error': f'No hay suficiente stock de {subreceta.nombre}'}, status=400)
                 
-                subreceta.stock -= cantidad_requerida
-                subreceta.save()
+                # Descontar los ingredientes de la subreceta
+                for subreceta_item in subreceta.recetaitem_set.all():
+                    item = subreceta_item.item
+                    cantidad_subrequerida = subreceta_item.cantidad * cantidad_requerida  # Multiplicar por la cantidad de subreceta requerida
+                    registro = subreceta_item.registro
+
+                    if registro.cantidad >= cantidad_subrequerida:
+                        registro.cantidad -= cantidad_subrequerida
+                        registro.save()
+                    else:
+                        return JsonResponse({'error': f'No hay suficiente stock en el registro ID {registro.id} para {item.nombre}'}, status=400)
+
+                    if item.stock < cantidad_subrequerida:
+                        return JsonResponse({'error': f'No hay suficiente stock de {item.nombre}'}, status=400)
+                    
+                    item.stock -= cantidad_subrequerida
+                    item.save()
 
         return JsonResponse({'success': True})
     except Receta.DoesNotExist:

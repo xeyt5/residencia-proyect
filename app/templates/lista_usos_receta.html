@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Usos de Recetas</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4">Lista de Usos de Recetas</h2>
+        <a href="{% url 'generar_reporte' %}" class="btn btn-primary mb-4">Generar Reporte</a>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Receta</th>
+                    <th>Cantidad</th>
+                    <th>Cotización Total</th>
+                    <th>Fecha de Uso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for uso in usos_recetas %}
+                <tr>
+                    <td>{{ uso.receta.nombre }}</td>
+                    <td>{{ uso.cantidad }}</td>
+                    <td>${{ uso.cotizacion_total }}</td>
+                    <td>{{ uso.fecha_uso|date:"d M Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

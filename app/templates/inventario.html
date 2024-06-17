@@ -38,13 +38,11 @@
         </nav>
         <h1>Inventario</h1>
         <div class='color_p'>
-            <div class="color-rojo">
-            </div>
+            <div class="color-rojo"></div>
             <p>peligro</p> 
         </div>
         <div class='color_a'>
-            <div class="color-amarillo">
-            </div>
+            <div class="color-amarillo"></div>
             <p class='ama'>precaucion</p> 
         </div>
         <div class="search-bar">
@@ -52,10 +50,11 @@
                 <input type="text" id="search-input" name="search" placeholder="Buscar...">
             </form>
         </div>
-        {%if perms.app.add_registro%}
-        <button type="button" class='insertar' onclick="window.location.href='{% url 'insertar_r'%}'" alt="registrar item">
-            <img src="{% static 'imagenes/insertar.png' %}" class="insertar-imagen" alt="registrar item"></button>
-        {%endif%}
+        {% if perms.app.add_registro %}
+        <button type="button" class='insertar' onclick="window.location.href='{% url 'insertar_r' %}'" alt="registrar item">
+            <img src="{% static 'imagenes/insertar.png' %}" class="insertar-imagen" alt="registrar item">
+        </button>
+        {% endif %}
         <table class="default">
             <thead>
                 <tr>
@@ -149,9 +148,14 @@
                             <input type="text" id="status-filter" placeholder="Status" class="filter-input">
                         </form>
                     </th>
+                    <th>
+                        <form class="filter-form">
+                            <input type="text" id="precio-filter" placeholder="Precio" class="filter-input">
+                        </form>
+                    </th>
                 </tr>
                 <tr>
-                    <th></th> 
+                    <th></th>
                     <th>Id</th>
                     <th>Nombre</th>
                     <th>Contenido</th>
@@ -169,6 +173,7 @@
                     <th>Equipo</th>
                     <th>Nivel</th>
                     <th>Status</th>
+                    <th>Precio</th>
                 </tr>
             </thead>
             <tbody>
@@ -220,12 +225,12 @@
                         {% endfor %}
                     </td>
                     <td>{{ registro.status }}</td>
+                    <td>${{ registro.precio}}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-    <!-- jQuery and SweetAlert2 scripts -->
+        </div>
     <script>
         $(document).ready(function() {
             $('#search-input').on('input', function() {

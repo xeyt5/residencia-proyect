@@ -181,3 +181,20 @@ table input[type="text"], #fecha-hora-filter{
 .usar-receta:hover{
     background-color: #218503;
 }
+
+#filtroNombreReceta {
+    color: #000000;
+    width: 190px;
+    height: 21px;
+    border-radius: 8px;
+    padding: 5px 10px; /* Agrega un espacio interno para el texto */
+    border: 1px solid #ccc; /* Agrega un borde suave */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Agrega una sombra suave */
+    font-size: 14px; /* Ajusta el tamaño de fuente según tus preferencias */
+    transition: all 0.3s ease; /* Agrega una transición suave al cambiar de estado */
+  }
+  
+  #filtroNombreReceta:focus {
+    outline: none; /* Elimina el contorno predeterminado al enfocar */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Cambia la sombra al enfocar */
+  }

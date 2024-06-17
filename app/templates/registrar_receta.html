@@ -1,4 +1,4 @@
-{% load static %}
+{% load static%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,12 +44,13 @@
             <label for="ingredientes">Ingredientes:</label><br>
             <div id="ingredientes-container">
                 <div class="ingrediente">
-                    <select name="ingredientes">
+                    <select name="ingredientes" onchange="updateUnidadMedida(this)">
                         {% for registro in registros %}
-                        <option value="{{ registro.id }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
+                        <option value="{{ registro.id }}" data-unidad="{{ registro.item.unidad_de_medida }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
                         {% endfor %}
                     </select>
                     <input type="number" name="cantidades" placeholder="Cantidad" class="cantidad">
+                    <input name="unidad_medida" class="unidad-medida" readonly>
                 </div>
             </div>
             <button type="button" class='ingrediente' onclick="addIngrediente()">Agregar ingrediente</button><br><br>
@@ -61,7 +62,7 @@
                         <option value="{{ receta.id }}">{{ receta.nombre }}</option>
                         {% endfor %}
                     </select>
-                    <input type="number" name="subcantidades" placeholder="Cantidad">
+                    <input type="number" name="subcantidades" placeholder="Cantidad" class="cantidads">
                 </div>
             </div>
             <button type="button" class="sub" onclick="addSubreceta()">Agregar sub receta</button><br>
@@ -93,12 +94,13 @@
             const ingredienteDiv = document.createElement('div');
             ingredienteDiv.className = 'ingrediente';
             ingredienteDiv.innerHTML = `
-                <select name="ingredientes">
+                <select name="ingredientes" onchange="updateUnidadMedida(this)">
                     {% for registro in registros %}
-                    <option value="{{ registro.id }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
+                    <option value="{{ registro.id }}" data-unidad="{{ registro.item.unidad_de_medida }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
                     {% endfor %}
                 </select>
                 <input type="number" name="cantidades" placeholder="Cantidad">
+                <input type="text" name="unidad_medida" class="unidad-medida" readonly>
             `;
             container.appendChild(ingredienteDiv);
         }
@@ -117,6 +119,15 @@
             `;
             container.appendChild(subrecetaDiv);
         }
+
+        function updateUnidadMedida(selectElement) {
+            const unidadMedida = selectElement.options[selectElement.selectedIndex].dataset.unidad;
+            const unidadInput = selectElement.nextElementSibling.nextElementSibling;
+            unidadInput.value = unidadMedida;
+        }
+
+        // Initialize unidad de medida for the first ingredients
+        document.querySelectorAll('select[name="ingredientes"]').forEach(select => updateUnidadMedida(select));
     </script>
 </body>
 </html>

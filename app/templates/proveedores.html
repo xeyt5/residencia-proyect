@@ -1,4 +1,4 @@
-{% load static %}
+{%load static%}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -88,8 +88,8 @@
                     <td>{{ proveedor.nombre }}</td>
                     <td>{{ proveedor.descripcion }}</td>
                     <td>{{ proveedor.telefono }}</td>
-                    <td>{{ proveedor.correo }}</td>
-                    <td><a href="{{ proveedor.url }}" class="sin-subrayado">{{ proveedor.url }}</a></td>
+                    <td>{% if proveedor.correo %}{{ proveedor.correo }}{% endif %}</td>
+                    <td>{% if proveedor.url %}<a href="{{ proveedor.url }}" class="sin-subrayado">{{ proveedor.url }}</a>{% endif %}</td>
                 </tr>
                 {% endfor %}
             </tbody>

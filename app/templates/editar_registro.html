@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Editar Registro</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/inser_registro.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/editar_item.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -87,6 +88,8 @@
                     <input type="text" id="cod" name="cod" value="{{ registro.cod }}"><br>
                     <label for="status">Status:</label><br>
                     <input type="text" id="status" name="status" value="{{ registro.status }}"><br>
+                    <label for="precio">Precio:</label><br>
+                    <input type="number" id="precio" name="precio" value="{{ registro.precio }}"><br>
                 </div>
                 <button type="button" id="submitBtn">Guardar</button>
             </form>
@@ -147,6 +150,12 @@
                     document.getElementById('editForm').submit();
                 }
             });
+        });
+    </script>
+    <script>
+        document.getElementById('editForm').addEventListener('submit', function(event) {
+            var precioInput = document.getElementById('precio');
+            precioInput.value = precioInput.value.replace(/,/g, '');
         });
     </script>
 </body>

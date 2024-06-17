@@ -74,5 +74,15 @@ class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
         fields = ['nombre', 'contenido', 'unidad_de_medida', 'stock','stock_minimo','types', 'locations', 'marcas', 'proveedores']
+        
+        
+class TypeForm(forms.ModelForm):
+    class Meta:
+        model = Type
+        fields = ['nombre', 'descripcion']
 
+class LocationForm(forms.ModelForm):
+    class Meta:
+        model = Location
+        fields = ['equipo', 'nivel', 'descripcion']
         

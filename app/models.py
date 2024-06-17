@@ -7,6 +7,12 @@ from user.models import User
 class Type(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=255)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def delete(self, *args, **kwargs):
+        self._usuario = kwargs.pop('usuario', None)
+        self._descripcion_personalizada = kwargs.pop('descripcion_personalizada', '')
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return self.nombre
@@ -15,9 +21,16 @@ class Location(models.Model):
     equipo = models.CharField(max_length=100)
     nivel = models.CharField(max_length=50)
     descripcion = models.CharField(max_length=255)
+    usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def delete(self, *args, **kwargs):
+        self._usuario = kwargs.pop('usuario', None)
+        self._descripcion_personalizada = kwargs.pop('descripcion_personalizada', '')
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return self.equipo
+
 
 class Marca(models.Model):
     nombre = models.CharField(max_length=100)
@@ -72,6 +85,9 @@ class Item(models.Model):
 
 
 
+
+from django.db import models
+
 class Registro(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     cod_barras = models.CharField(max_length=100)
@@ -83,12 +99,12 @@ class Registro(models.Model):
     cod = models.CharField(max_length=100)
     status = models.IntegerField()
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    precio = models.DecimalField(max_digits=10, decimal_places=2) 
 
     def __str__(self):
         return self.cod_barras
 
     def save(self, *args, **kwargs):
-        # Si el registro ya existe, ajusta el stock restando la cantidad anterior
         if self.pk is not None:
             registro_previo = Registro.objects.get(pk=self.pk)
             diferencia_cantidad = self.cantidad - registro_previo.cantidad
@@ -132,7 +148,15 @@ class RecetaReceta(models.Model):
     def __str__(self):
         return f'{self.cantidad} de {self.subreceta} en {self.receta}'
 
+class UsoReceta(models.Model):
+    receta = models.ForeignKey(Receta, on_delete=models.CASCADE)
+    cantidad = models.IntegerField()
+    cotizacion_total = models.DecimalField(max_digits=10, decimal_places=2)
+    fecha_uso = models.DateTimeField(auto_now_add=True)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.receta.nombre} - Usada {self.cantidad} veces el {self.fecha_uso}'
 
 
 
@@ -272,3 +296,62 @@ def registrar_cambio_registro(sender, instance, created, **kwargs):
             descripcion=f'Se {accion.lower()} el registro {instance.id} y con codigo de barras {instance.cod_barras}'
         )
 
+@receiver(post_save, sender=Type)
+def registrar_cambio_type(sender, instance, created, **kwargs):
+    accion = 'Crear' if created else 'Actualizar'
+    if created:
+        Bitacora.objects.create(
+            accion=accion,
+            usuario=instance.usuario,
+            modelo='Type',
+            instancia_id=instance.id,
+            descripcion=f'Se {accion.lower()} el tipo con ID {instance.id} y nombre {instance.nombre}'
+        )
+    else:
+        Bitacora.objects.create(
+            accion=accion,
+            usuario=instance.usuario,
+            modelo='Type',
+            instancia_id=instance.id,
+            descripcion=f'Se {accion.lower()} el tipo con ID {instance.id} y nombre {instance.nombre}'
+        )
+
+@receiver(post_delete, sender=Type)
+def registrar_eliminacion_type(sender, instance, **kwargs):
+    usuario = getattr(instance, '_usuario', None)
+    descripcion_personalizada = getattr(instance, '_descripcion_personalizada', '')
+
+    if usuario is None and instance.usuario:
+        usuario = instance.usuario
+
+    Bitacora.objects.create(
+        accion='Eliminar',
+        usuario=usuario,
+        modelo='Type',
+        instancia_id=instance.id,
+        descripcion=descripcion_personalizada
+    )
+
+
+@receiver(post_save, sender=Location)
+def registrar_cambio_provedor(sender, instance, created, **kwargs):
+    if created:
+        Bitacora.objects.create(
+            accion='Crear',
+            usuario=instance.usuario,
+            modelo='Location',
+            instancia_id=instance.id,
+            descripcion=f'Se creó la localizacion con ID {instance.id} y nombre {instance.nombre}'
+        )
+
+
+@receiver(post_save, sender=Location)
+def registrar_cambio_location(sender, instance, created, **kwargs):
+    if created:
+        Bitacora.objects.create(
+            accion='Crear',
+            usuario=instance.usuario,
+            modelo='Location',
+            instancia_id=instance.id,
+            descripcion=f'Se creó la ubicación con ID {instance.id} y equipo {instance.equipo}'
+        )

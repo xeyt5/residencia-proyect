@@ -20,18 +20,25 @@
                 <li><a href="{% url 'listar_items' %}">Items</a></li>  
                 {% endif %}
                 <li><a href="/recetas/">Recetas</a></li>
-                {% if perms.app.view_bitacora %}
-                <li><a href="/bitacora/">Bitácora</a></li>
-                {% endif %}
                 {% if perms.app.view_marca %}
                 <li><a href="/marca/">Marca</a></li>
                 {% endif %}
                 {% if perms.app.view_proveedor %}
                 <li><a href="/proveedores/">Proveedores</a></li>
                 {% endif %}
+                {% if perms.app.view_type %}
+                <li><a href="/tipos/">tipos</a></li>
+                {% endif %}
+                {% if perms.app.view_locatios %}
+                <li><a href="/listar-locations/">equipos</a></li>
+                {% endif %}
+                {% if perms.app.view_bitacora %}
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {% endif %}
                 {% if perms.app.view_auth_permission %}
                 <li><a href="/asignar-permisos/">Permisos</a></li>
                 {% endif %}
+                <li><a href="/usos-receta/">Reporte</a></li>
                 <li>
                     <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
                 </li>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Registro de Item</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_proveedor.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/inser_registro.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
@@ -40,7 +40,12 @@
             <label for="item">Nombre:</label><br>
             <select id="item" name="item">
                 {% for item in items %}
-                <option value="{{ item.id }}" data-contenido="{{ item.contenido }}" data-unidad_medida="{{ item.unidad_de_medida }}" data-locations="{{ item.locations.all|join:', ' }}" data-marcas="{{ item.marcas.all|join:', ' }}">
+                <option value="{{ item.id }}" 
+                        data-contenido="{{ item.contenido }}" 
+                        data-unidad_medida="{{ item.unidad_de_medida }}" 
+                        data-ubicacion="{{ item.locations.all.0.equipo }}" 
+                        data-nivel="{{ item.locations.all.0.nivel }}" 
+                        data-marcas="{{ item.marcas.all|join:', ' }}">
                     {{ item.nombre }}
                 </option>
                 {% endfor %}
@@ -51,7 +56,7 @@
             <input type="text" id="unidad_medida" name="unidad_medida" readonly><br>
             <label for="ubicacion">Ubicación:</label><br>
             <input type="text" id="ubicacion" name="ubicacion" readonly><br>
-            <label for="nivel">nivel:</label><br>
+            <label for="nivel">Nivel:</label><br>
             <input type="text" id="nivel" name="nivel" readonly><br>
             <label for="marca">Marca:</label><br>
             <input type="text" id="marca" name="marca" readonly><br>
@@ -73,6 +78,8 @@
             <input type="text" id="cod" name="cod"><br>
             <label for="status">Status:</label><br>
             <input type="text" id="status" name="status"><br>
+            <label for="precio">Precio:</label><br>
+            <input type="text" id="precio" name="precio"><br>
         </div>
         <button type="submit">Guardar</button>
     </form>
@@ -82,7 +89,7 @@
             var selectedOption = this.options[this.selectedIndex];
             document.getElementById('contenido').value = selectedOption.getAttribute('data-contenido');
             document.getElementById('unidad_medida').value = selectedOption.getAttribute('data-unidad_medida');
-            document.getElementById('ubicacion').value = selectedOption.getAttribute('data-locations');
+            document.getElementById('ubicacion').value = selectedOption.getAttribute('data-ubicacion');
             document.getElementById('nivel').value = selectedOption.getAttribute('data-nivel');
             document.getElementById('marca').value = selectedOption.getAttribute('data-marcas');
         });

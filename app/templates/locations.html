@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ubicaciones</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/proveedor.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {% if perms.app.view_item %}
+                <li><a href="/inventario/">Inventario</a></li>
+                {% endif %}
+                {% if perms.app.view_item %}
+                <li><a href="{% url 'listar_items' %}">Items</a></li>
+                {% endif %}
+                <li><a href="/recetas/">Recetas</a></li>
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {% if perms.app.view_marca %}
+                <li><a href="/marca/">Marca</a></li>
+                {% endif %}
+                {% if perms.app.view_proveedor %}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {% endif %}
+                {% if perms.app.view_auth_permission %}
+                <li><a href="/asignar-permisos/">Permisos</a></li>
+                {% endif %}
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+                </li>
+            </ul>
+        </nav>
+        <br><br><br><br>
+        <h1>Ubicaciones</h1>
+
+        {% if messages %}
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    {% for message in messages %}
+                        Swal.fire({
+                            title: '{{ message.tags|capfirst }}',
+                            text: '{{ message }}',
+                            icon: '{{ message.tags|default:"info" }}',
+                            confirmButtonText: 'Ok'
+                        });
+                    {% endfor %}
+                });
+            </script>
+        {% endif %}
+
+        {% if perms.app.add_location %}
+        <button type="button" class='insertar' onclick="window.location.href='{% url 'crear_location' %}'" alt="registrar location">
+            <img src="{% static 'imagenes/insertar.png' %}" class="insertar-imagen" alt="registrar location"></button>
+        {% endif %}
+        <table class="default">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Equipo</th>
+                    <th>Nivel</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for location in locations %}
+                <tr>
+                    <td>
+                        {% if perms.app.change_location %}
+                        <button type="button" onclick="window.location.href='{% url 'editar_location' location.id %}'" class="editar">
+                            <img src="{% static 'imagenes/editar.png' %}" alt="Editar">
+                        </button>
+                        {% endif %}
+                        <br><br>
+                        {% if perms.app.delete_location %}
+                        <button type="button" class="eliminar" data-location-id="{{ location.id }}">
+                            <img src="{% static 'imagenes/borrar.png' %}" alt="Eliminar">
+                        </button>
+                        {% endif %}
+                    </td>
+                    <td>{{ location.equipo }}</td>
+                    <td>{{ location.nivel }}</td>
+                    <td>{{ location.descripcion }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.querySelectorAll('.eliminar').forEach(button => {
+            button.addEventListener('click', function() {
+                const locationId = this.getAttribute('data-location-id');
+                Swal.fire({
+                    title: "¿Estás seguro de que quieres eliminarlo?",
+                    text: "Este cambio no se puede revertir",
+                    input: 'textarea',
+                    inputLabel: 'Ingresa una descripción personalizada',
+                    inputPlaceholder: 'Escribe tu descripción aquí...',
+                    inputAttributes: {
+                        'aria-label': 'Escribe tu descripción aquí'
+                    },
+                    showCancelButton: true,
+                    confirmButtonColor: "#FF1401",
+                    cancelButtonColor: "#458CFA",
+                    confirmButtonText: "Eliminar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const csrftoken = getCookie('csrftoken');
+                        const formData = new FormData();
+                        formData.append('descripcion_personalizada', result.value);
+                        fetch(`/eliminar-location/${locationId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': csrftoken,
+                            },
+                            body: formData
+                        }).then(response => {
+                            if (response.ok) {
+                                Swal.fire({
+                                    title: "¡Eliminado!",
+                                    text: "La ubicación ha sido eliminada.",
+                                    icon: "success"
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "No se pudo eliminar la ubicación.",
+                                    icon: "error"
+                                });
+                            }
+                        }).catch(error => {
+                            console.error('Error al eliminar la ubicación:', error);
+                        });
+                    }
+                });
+            });
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

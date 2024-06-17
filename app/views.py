@@ -4,13 +4,19 @@ from django.contrib.auth import logout, authenticate, login
 from .forms import CustomUserChangeForm, CustomUserCreationForm
 from django.contrib.auth import get_user_model
 from django.contrib import messages  
-from .models import Item, Registro, Location, Type, Marca, Proveedor, Bitacora, Receta, RecetaItem, RecetaReceta
-from .forms import RegistroForm, marcaform, proveedorForm, ItemForm
+from .models import Item, Registro, Location, Type, Marca, Proveedor, Bitacora, Receta, RecetaItem, RecetaReceta, UsoReceta
+from .forms import marcaform, proveedorForm, ItemForm, TypeForm, LocationForm
 from django.http import JsonResponse
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.views.decorators.http import require_POST
+from django.http import HttpResponse
+from django.utils import timezone
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from io import BytesIO
 
 # Create your views here.
 
@@ -338,7 +344,7 @@ def editar_registro(request, registro_id):
             registro.fecha_caducidad = fecha_caducidad
             
         fecha_recepcion = request.POST.get('fecha_recepcion')
-        if fecha_recepcion:
+        if (fecha_recepcion):
             registro.fecha_recepcion = fecha_recepcion
             
         registro.lote = request.POST.get('lote')
@@ -348,17 +354,18 @@ def editar_registro(request, registro_id):
         registro.cantidad = nueva_cantidad
         registro.cod = request.POST.get('cod')
         registro.status = request.POST.get('status')
+        registro.precio = request.POST.get('precio')
         
         # Actualizar marca, equipo y nivel
         marca_id = request.POST.get('marca')
-        equipo_id = request.POST.get('equipo')
+        ubicacion_id = request.POST.get('ubicacion')
         nivel = request.POST.get('nivel')
         
         if marca_id:
             registro.marca = get_object_or_404(Marca, pk=marca_id)
         
-        if equipo_id:
-            registro.equipo = get_object_or_404(Location, pk=equipo_id)
+        if ubicacion_id:
+            registro.equipo = get_object_or_404(Location, pk=ubicacion_id)
         
         if nivel:
             registro.nivel = nivel
@@ -367,18 +374,22 @@ def editar_registro(request, registro_id):
         
         item.stock += diferencia_cantidad
         item.save()
-        messages.success(request, 'Se modifico correctamente el registro')
+        messages.success(request, 'Se modificó correctamente el registro')
         return redirect('/inventario/')  
     
-    return render(request, 'editar_registro.html', {'registro': registro, 'item': item, 'types': types, 'locations': locations, 'marcas': marcas, 'items': items})
+    return render(request, 'editar_registro.html', {
+        'registro': registro,
+        'item': item,
+        'types': types,
+        'locations': locations,
+        'marcas': marcas,
+        'items': items
+    })
 
-
+from decimal import Decimal
 @permission_required('app.add_registro')
 @login_required
 def registrar_item(request):
-    types = Type.objects.all()
-    locations = Location.objects.all()
-    marcas = Marca.objects.all()
     items = Item.objects.all()
 
     if request.method == 'POST':
@@ -393,6 +404,10 @@ def registrar_item(request):
         cantidad = int(request.POST.get('cantidad'))
         cod = request.POST.get('cod')
         status = request.POST.get('status')
+        
+        # Obtener el precio y convertirlo a float
+        precio_str = request.POST.get('precio')
+        precio = Decimal(precio_str.replace(',', '.')) if precio_str else None
 
         # Crear el registro y automáticamente ajustar el stock del item
         registro = Registro(
@@ -405,6 +420,7 @@ def registrar_item(request):
             cantidad=cantidad,
             cod=cod,
             status=status,
+            precio=precio,
             usuario=request.user
         )
         registro.save()
@@ -412,15 +428,8 @@ def registrar_item(request):
         return redirect('/inventario/')
 
     return render(request, 'item_r.html', {
-        'types': types,
-        'locations': locations,
-        'marcas': marcas,
         'items': items
     })
-
-
-
-
 
 
 @permission_required('app.delete_registro')
@@ -527,6 +536,11 @@ def crear_item(request):
 @login_required
 def editar_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
+    types = Type.objects.all()
+    locations = Location.objects.all()
+    marcas = Marca.objects.all()
+    proveedores = Proveedor.objects.all()
+
     if request.method == 'POST':
         form = ItemForm(request.POST, instance=item)
         if form.is_valid():
@@ -542,7 +556,7 @@ def editar_item(request, item_id):
                     usuario=request.user,
                     modelo='Item',
                     instancia_id=item.id,
-                    descripcion=f''
+                    descripcion=''
                 )
             else:
                 Bitacora.objects.create(
@@ -557,7 +571,15 @@ def editar_item(request, item_id):
             return redirect('listar_items')
     else:
         form = ItemForm(instance=item)
-    return render(request, 'editar_item.html', {'form': form, 'item': item})
+
+    return render(request, 'editar_item.html', {
+        'form': form,
+        'item': item,
+        'types': types,
+        'locations': locations,
+        'marcas': marcas,
+        'proveedores': proveedores
+    })
 
 
 
@@ -656,20 +678,59 @@ permission_required('app.change_Recetas')
 def Recetas_editar(request):
     return render(request, 'editar_receta.html') 
 
-
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required, permission_required
 from django.http import JsonResponse
-from django.db import transaction
+
+@permission_required('app.view_receta')
+@login_required
+@require_POST
+def cotizar_receta(request, receta_id):
+    try:
+        data = json.loads(request.body)
+        cantidad = int(data.get('cantidad', 1))  # Convertir la cantidad a entero
+
+        receta = Receta.objects.get(id=receta_id)
+        total_costo = 0
+
+        # Calcular costo de los ingredientes
+        ingredientes = []
+        for receta_item in receta.recetaitem_set.all():
+            total_costo += receta_item.registro.precio * receta_item.cantidad * cantidad
+            ingredientes.append(f"{receta_item.cantidad} de {receta_item.item.nombre}")
+
+        # Calcular costo de las subrecetas
+        subrecetas = []
+        for receta_receta in receta.receta_principal.all():
+            subreceta_costo = 0
+            subreceta = receta_receta.subreceta
+            for subreceta_item in subreceta.recetaitem_set.all():
+                subreceta_costo += subreceta_item.registro.precio * subreceta_item.cantidad * cantidad
+            total_costo += subreceta_costo * receta_receta.cantidad
+            subrecetas.append(f"{receta_receta.cantidad} de {subreceta.nombre}")
+
+        data = {
+            "success": True,
+            "total_costo": float(total_costo),
+            "ingredientes": ingredientes,
+            "subrecetas": subrecetas
+        }
+    except Receta.DoesNotExist:
+        data = {"success": False, "error": "Receta no encontrada"}
+    except Exception as e:
+        data = {"success": False, "error": str(e)}
+    return JsonResponse(data)
+
 import json
 
+
+@permission_required('app.add_receta')
 @require_POST
-@permission_required('app.add_receta')  # Ajusta los permisos según sea necesario
 @login_required
 def usar_receta(request):
     try:
         data = json.loads(request.body)
         receta_id = data.get('recetaId')
+        cantidad = int(data.get('cantidad', 1))  # Convertir la cantidad a entero
+
         if not receta_id:
             return JsonResponse({'error': 'No se proporcionó una receta válida'}, status=400)
 
@@ -677,46 +738,61 @@ def usar_receta(request):
 
         # Inicia una transacción para garantizar la integridad de los datos
         with transaction.atomic():
+            # Calcular costo total de la receta
+            total_costo = 0
+
             # Descontar los ingredientes de la receta
             for receta_item in receta.recetaitem_set.all():
                 item = receta_item.item
-                cantidad_requerida = receta_item.cantidad
+                cantidad_requerida = receta_item.cantidad * cantidad
                 registro = receta_item.registro
 
-                if registro.cantidad >= cantidad_requerida:
+                if registro.cantidad >= int(cantidad_requerida):  # Convertir cantidad_requerida a entero
                     registro.cantidad -= cantidad_requerida
                     registro.save()
                 else:
                     return JsonResponse({'error': f'No hay suficiente stock en el registro ID {registro.id} para {item.nombre}'}, status=400)
 
-                if item.stock < cantidad_requerida:
+                if item.stock >= cantidad_requerida:  # Comparar con cantidad_requerida (ya un entero)
+                    item.stock -= cantidad_requerida
+                    item.save()
+                else:
                     return JsonResponse({'error': f'No hay suficiente stock de {item.nombre}'}, status=400)
-                
-                item.stock -= cantidad_requerida
-                item.save()
+
+                total_costo += receta_item.registro.precio * receta_item.cantidad * cantidad
 
             # Descontar las subrecetas de la receta
             for receta_receta in receta.receta_principal.all():
                 subreceta = receta_receta.subreceta
-                cantidad_requerida = receta_receta.cantidad
-                
+                cantidad_requerida = receta_receta.cantidad * cantidad
+
                 # Descontar los ingredientes de la subreceta
                 for subreceta_item in subreceta.recetaitem_set.all():
                     item = subreceta_item.item
-                    cantidad_subrequerida = subreceta_item.cantidad * cantidad_requerida  # Multiplicar por la cantidad de subreceta requerida
+                    cantidad_subrequerida = subreceta_item.cantidad * cantidad_requerida
                     registro = subreceta_item.registro
 
-                    if registro.cantidad >= cantidad_subrequerida:
+                    if registro.cantidad >= int(cantidad_subrequerida):  # Convertir cantidad_subrequerida a entero
                         registro.cantidad -= cantidad_subrequerida
                         registro.save()
                     else:
                         return JsonResponse({'error': f'No hay suficiente stock en el registro ID {registro.id} para {item.nombre}'}, status=400)
 
-                    if item.stock < cantidad_subrequerida:
+                    if item.stock >= cantidad_subrequerida:  # Comparar con cantidad_subrequerida (ya un entero)
+                        item.stock -= cantidad_subrequerida
+                        item.save()
+                    else:
                         return JsonResponse({'error': f'No hay suficiente stock de {item.nombre}'}, status=400)
-                    
-                    item.stock -= cantidad_subrequerida
-                    item.save()
+
+                    total_costo += subreceta_item.registro.precio * subreceta_item.cantidad * cantidad_subrequerida
+
+            # Guardar el registro de uso de receta
+            uso_receta = UsoReceta.objects.create(
+                receta=receta,
+                cantidad=cantidad,
+                cotizacion_total=total_costo,
+                usuario=request.user
+            )
 
         return JsonResponse({'success': True})
     except Receta.DoesNotExist:
@@ -741,3 +817,239 @@ def eliminar_receta(request, receta_id):
         return JsonResponse({'message': 'Receta eliminada exitosamente', 'usuario': usuario.username})
     else:
         return JsonResponse({'error': 'Método no permitido'}, status=405)
+    
+    
+def resumen_receta(request, receta_id):
+    try:
+        receta = Receta.objects.get(id=receta_id)
+        ingredientes = [
+            {
+                "nombre": ri.item.nombre,
+                "registroId": ri.registro.id,
+                "cantidad": ri.cantidad
+            }
+            for ri in receta.recetaitem_set.all()
+        ]
+        subrecetas = [
+            {
+                "nombre": rr.subreceta.nombre,
+                "cantidad": rr.cantidad
+            }
+            for rr in receta.receta_principal.all()
+        ]
+        data = {
+            "success": True,
+            "receta": {
+                "id": receta.id,
+                "nombre": receta.nombre,
+                "descripcion": receta.descripcion,
+                "ingredientes": ingredientes,
+                "subrecetas": subrecetas
+            }
+        }
+    except Receta.DoesNotExist:
+        data = {"success": False, "error": "Receta no encontrada"}
+    return JsonResponse(data)
+
+
+permission_required('app.view_type')
+@login_required
+def type(request):
+    types = Type.objects.all()
+    return render(request, 'type.html', {'types': types})
+
+@login_required
+@permission_required('app.delete_type', raise_exception=True)
+def eliminar_type(request, id):
+    if request.method == 'POST':
+        type_obj = get_object_or_404(Type, id=id)
+        type_obj.usuario = request.user
+        type_obj.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+
+@login_required
+@permission_required('app.add_type', raise_exception=True)
+def crear_type(request):
+    if request.method == 'POST':
+        form = TypeForm(request.POST)
+        if form.is_valid():
+            type_obj = form.save(commit=False)
+            type_obj.usuario = request.user
+            type_obj.save()
+            return redirect('type')
+    else:
+        form = TypeForm()
+    return render(request, 'crear_type.html', {'form': form})
+
+
+
+@login_required
+@permission_required('app.change_type', raise_exception=True)
+def editar_type(request, id):
+    type_obj = get_object_or_404(Type, id=id)
+    if request.method == 'POST':
+        form = TypeForm(request.POST, instance=type_obj)
+        if form.is_valid():
+            form.save()
+            return redirect('type')
+    else:
+        form = TypeForm(instance=type_obj)
+    return render(request, 'editar_type.html', {'form': form})
+
+
+
+
+@login_required
+@permission_required('app.view_location', raise_exception=True)
+def listar_locations(request):
+    locations = Location.objects.all()
+    return render(request, 'locations.html', {'locations': locations})
+
+
+
+@login_required
+@permission_required('app.add_location', raise_exception=True)
+def crear_location(request):
+    if request.method == 'POST':
+        form = LocationForm(request.POST)
+        if form.is_valid():
+            location = form.save(commit=False)
+            location.usuario = request.user
+            location.save()
+            messages.success(request, 'Se agregó la ubicación correctamente')
+            return redirect('listar_locations')
+    else:
+        form = LocationForm()
+    return render(request, 'crear_locations.html', {'form': form})
+
+
+@permission_required('app.change_location')
+@login_required
+def editar_location(request, location_id):
+    location = get_object_or_404(Location, id=location_id)
+    if request.method == 'POST':
+        form = LocationForm(request.POST, instance=location)
+        if form.is_valid():
+            location = form.save(commit=False)
+            location.usuario = request.user
+            location.save()
+
+            descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+            if not descripcion_personalizada:
+                messages.warning(request, 'No se proporcionó ninguna descripción personalizada.')
+                Bitacora.objects.create(
+                    accion='Actualizar',
+                    usuario=request.user,
+                    modelo='Location',
+                    instancia_id=location.id,
+                    descripcion=f''
+                )
+            else:
+                Bitacora.objects.create(
+                    accion='Actualizar',
+                    usuario=request.user,
+                    modelo='Location',
+                    instancia_id=location.id,
+                    descripcion=descripcion_personalizada
+                )
+                messages.success(request, 'Se modificó correctamente la ubicación con la descripción personalizada.')
+
+            return redirect('listar_locations')
+    else:
+        form = LocationForm(instance=location)
+    return render(request, 'editar_locations.html', {'form': form, 'location': location})
+
+@login_required
+@permission_required('app.delete_location', raise_exception=True)
+def eliminar_location(request, location_id):
+    location = get_object_or_404(Location, id=location_id)
+    if request.method == 'POST':
+        usuario = request.user
+        descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+
+
+        Bitacora.objects.create(
+            accion='Eliminar',
+            usuario=usuario,
+            modelo='Location',
+            instancia_id=location.id,
+            descripcion=descripcion_personalizada
+        )
+
+        location.delete()
+
+        return redirect('listar_locations')
+    return render(request, 'eliminar_location.html', {'location': location})
+
+
+
+@login_required
+def lista_usos_receta(request):
+    usos_recetas = UsoReceta.objects.all().order_by('-fecha_uso')
+    context = {
+        'usos_recetas': usos_recetas
+    }
+    return render(request, 'lista_usos_receta.html', context)
+
+import datetime
+@login_required
+def generar_reporte(request):
+    if request.method == 'POST':
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin')
+
+        if fecha_inicio and fecha_fin:
+            fecha_inicio = timezone.datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+            fecha_fin = timezone.datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+
+            usos_recetas = UsoReceta.objects.filter(fecha_uso__date__range=(fecha_inicio, fecha_fin)).order_by('-fecha_uso')
+
+            # Crear el PDF
+            buffer = BytesIO()
+            p = canvas.Canvas(buffer, pagesize=letter)
+
+            # Título del reporte
+            p.drawString(1 * inch, 10 * inch, f"Reporte de Usos de Recetas del {fecha_inicio} al {fecha_fin}")
+
+            # Table headers
+            p.drawString(0.5 * inch, 9.5 * inch, "Receta")
+            p.drawString(2 * inch, 9.5 * inch, "Cantidad")
+            p.drawString(3 * inch, 9.5 * inch, "Cotización Total")
+            p.drawString(5 * inch, 9.5 * inch, "Fecha de Uso")
+
+            y = 9.25 * inch
+            total_cantidad = 0
+            total_costo = 0
+
+            for uso in usos_recetas:
+                p.drawString(0.5 * inch, y, uso.receta.nombre)
+                p.drawString(2 * inch, y, str(uso.cantidad))
+                p.drawString(3 * inch, y, f"${uso.cotizacion_total:.2f}")
+                p.drawString(5 * inch, y, uso.fecha_uso.strftime('%d %b %Y %H:%M'))
+
+                total_cantidad += uso.cantidad
+                total_costo += uso.cotizacion_total
+
+                y -= 0.25 * inch
+
+            # Totales
+            p.drawString(1 * inch, y, f"Total Cantidad: {total_cantidad}")
+            p.drawString(3 * inch, y, f"Total Costo: ${total_costo:.2f}")
+
+            p.showPage()
+            p.save()
+
+            buffer.seek(0)
+            filename = f"reporte_usos_recetas_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}.pdf"
+
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response.write(buffer.getvalue())
+
+            return response
+
+    return render(request, 'generar_reporte.html')
+

@@ -53,7 +53,18 @@ urlpatterns = [
     path('registrar-receta/', views.Recetas_registrar, name='registrar_receta'),
     path('usar-receta/', views.usar_receta, name='usar_receta'), 
     path('eliminar-receta/<int:receta_id>/', views.eliminar_receta, name='eliminar_receta'),
-    
+    path('resumen-receta/<int:receta_id>/', views.resumen_receta, name='resumen_receta'),
+    path('tipos/', views.type, name='type'), 
+    path('eliminar-type/<int:id>/', views.eliminar_type, name='eliminar_type'),
+    path('crear-type/', views.crear_type, name='crear_type'),
+    path('editar-type/<int:id>/', views.editar_type, name='editar_type'),
+    path('listar-locations/', views.listar_locations, name='listar_locations'),
+    path('crear-location/', views.crear_location, name='crear_location'),
+    path('editar-location/<int:location_id>/', views.editar_location, name='editar_location'),
+    path('eliminar-location/<int:location_id>/', views.eliminar_location, name='eliminar_location'),
+    path('cotizar-receta/<int:receta_id>/', views.cotizar_receta, name='cotizar_receta'),
+    path('usos-receta/', views.lista_usos_receta, name='lista_usos_receta'),
+    path('generar-reporte/', views.generar_reporte, name='generar_reporte'),
 ]
 
 if settings.DEBUG: 

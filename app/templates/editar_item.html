@@ -5,8 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Editar Item</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_item.css' %}">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Agrega SweetAlert -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/crear_item.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -17,7 +17,7 @@
             <li><a href="/inventario/">Inventario</a></li>
             {% endif %}
             {% if perms.app.view_item %}
-            <li><a href="{% url 'listar_items' %}">Items</a></li>  <!-- Enlace para listar items -->
+            <li><a href="{% url 'listar_items' %}">Items</a></li>
             {% endif %}
             <li><a href="/recetas/">Recetas</a></li>
             <li><a href="/bitacora/">Bitácora</a></li>
@@ -40,7 +40,62 @@
         <h1>Editar Item</h1>
         <form id="editForm" method="POST">
             {% csrf_token %}
-            {{ form.as_p }}
+            <div>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" value="{{ item.nombre }}" required>
+            </div>
+            <div>
+                <label for="contenido">Contenido:</label>
+                <input type="text" id="contenido" name="contenido" value="{{ item.contenido }}" required>
+            </div>
+            <div>
+                <label for="unidad_de_medida">Unidad de Medida:</label>
+                <input type="text" id="unidad_de_medida" name="unidad_de_medida" value="{{ item.unidad_de_medida }}" required>
+            </div>
+            <div>
+                <label for="stock">Stock:</label>
+                <input type="number" id="stock" name="stock" value="{{ item.stock }}" required>
+            </div>
+            <div>
+                <label for="stock_minimo">Stock Mínimo:</label>
+                <input type="number" id="stock_minimo" name="stock_minimo" value="{{ item.stock_minimo }}" required>
+            </div>
+            <div>
+                <label for="types">Tipo:</label>
+                <select id="types" name="types" required>
+                    {% for type in types %}
+                    <option value="{{ type.id }}" {% if type.id == item.tipo.id %} selected {% endif %}>{{ type.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="locations">Ubicación:</label>
+                <select id="locations" name="locations" required onchange="changeLocation()">
+                    {% for location in locations %}
+                    <option value="{{ location.id }}" data-nivel="{{ location.nivel }}" {% if location.id == item.ubicacion.id %} selected {% endif %}>{{ location.equipo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="nivel">Nivel:</label>
+                <input type="text" id="nivel" name="nivel" value="{{ item.ubicacion.nivel }}" disabled>
+            </div>
+            <div>
+                <label for="marcas">Marca:</label>
+                <select id="marcas" name="marcas" required>
+                    {% for marca in marcas %}
+                    <option value="{{ marca.id }}" {% if marca.id == item.marca.id %} selected {% endif %}>{{ marca.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="proveedores">Proveedor:</label>
+                <select id="proveedores" name="proveedores" required>
+                    {% for proveedor in proveedores %}
+                    <option value="{{ proveedor.id }}" {% if proveedor.id == item.proveedor.id %} selected {% endif %}>{{ proveedor.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <input type="hidden" name="descripcion_personalizada" id="descripcion_personalizada">
             <button type="button" id="submitBtn">Guardar</button>
         </form>
@@ -48,6 +103,14 @@
     </div>
 
     <script>
+        function changeLocation() {
+            var selectElement = document.getElementById('locations');
+            var nivelElement = document.getElementById('nivel');
+            var selectedOption = selectElement.options[selectElement.selectedIndex];
+            var nivel = selectedOption.getAttribute('data-nivel');
+            nivelElement.value = nivel;
+        }
+
         document.getElementById('submitBtn').addEventListener('click', function() {
             Swal.fire({
                 title: '¿Seguro que quieres editar este ítem?',

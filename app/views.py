@@ -17,8 +17,19 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from io import BytesIO
+import datetime
+from collections import defaultdict
+from reportlab.lib import colors
 
 # Create your views here.
+
+
+
+
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import permission_required, login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
 @permission_required('app.view_auth_permission')
 @login_required
@@ -32,6 +43,30 @@ def asignar_permisos(request):
 
     permisos = Permission.objects.filter(content_type__in=content_types)
 
+    # Diccionario para traducir los nombres de los permisos
+    permisos_traduccion = {
+        'Can add item': 'Puede agregar ítem',
+        'Can change item': 'Puede cambiar ítem',
+        'Can delete item': 'Puede eliminar ítem',
+        'Can view item': 'Puede ver ítem',
+        'Can add location': 'Puede agregar ubicación',
+        'Can change location': 'Puede cambiar ubicación',
+        'Can delete location': 'Puede eliminar ubicación',
+        'Can view location': 'Puede ver ubicación',
+        'Can add marca': 'Puede agregar marca',
+        'Can change marca': 'Puede cambiar marca',
+        'Can delete marca': 'Puede eliminar marca',
+        'Can view marca': 'Puede ver marca',
+        'Can add proveedor': 'Puede agregar proveedor',
+        'Can change proveedor': 'Puede cambiar proveedor',
+        'Can delete proveedor': 'Puede eliminar proveedor',
+        'Can view proveedor': 'Puede ver proveedor',
+        'Can add registro': 'Puede agregar registro',
+        'Can change registro': 'Puede cambiar registro',
+        'Can delete registro': 'Puede eliminar registro',
+        'Can view registro': 'Puede ver registro'
+    }
+
     if request.method == 'POST':
         if 'delete_user' in request.POST:
             username = request.POST.get('username')
@@ -44,6 +79,20 @@ def asignar_permisos(request):
             except User.DoesNotExist:
                 messages.error(request, f"El usuario '{username}' no existe.")
             
+            return redirect('asignar_permisos')
+
+        elif 'make_superuser' in request.POST:
+            username = request.POST.get('username')
+            print(f"Username received for superuser: {username}")
+
+            try:
+                selected_user = User.objects.get(username=username)
+                selected_user.is_superuser = True
+                selected_user.save()
+                messages.success(request, f"Se ha hecho a '{username}' superusuario.")
+            except User.DoesNotExist:
+                messages.error(request, f"El usuario '{username}' no existe.")
+
             return redirect('asignar_permisos')
 
         username = request.POST.get('username')
@@ -76,13 +125,35 @@ def asignar_permisos(request):
     selected_user = User.objects.filter(username=selected_username).first()
     selected_user_permissions = selected_user.user_permissions.all() if selected_user else []
 
+    grupos = Group.objects.all()
+
+    # Traducir los nombres de los permisos
+    permisos_traducidos = []
+    for permiso in permisos:
+        permiso.name = permisos_traduccion.get(permiso.name, permiso.name)
+        permisos_traducidos.append(permiso)
+
     return render(request, 'asignar_permisos.html', {
         'usuarios': usuarios,
-        'permisos': permisos,
+        'permisos': permisos_traducidos,
         'selected_username': selected_username,
         'selected_user_permissions': selected_user_permissions,
-        'selected_user': selected_user
+        'selected_user': selected_user,
+        'grupos': grupos
     })
+
+
+
+@permission_required('app.view_auth_permission')
+@login_required
+def get_group_permissions(request, group_id):
+    group = Group.objects.get(id=group_id)
+    permissions = group.permissions.all()
+
+    permissions_data = [{'id': perm.id, 'name': perm.name, 'checked': True} for perm in permissions]
+    
+    return JsonResponse({'permissions': permissions_data})
+
     
     
 
@@ -398,13 +469,13 @@ def registrar_item(request):
 
         cod_barras = request.POST.get('cod_barras')
         no_referencia_inv = request.POST.get('no_referencia_inv')
-        fecha_caducidad = request.POST.get('fecha_caducidad')
+        fecha_caducidad = request.POST.get('fecha_caducidad') or None  # Tratar valor vacío como None
         lote = request.POST.get('lote')
-        fecha_recepcion = request.POST.get('fecha_recepcion')
+        fecha_recepcion = request.POST.get('fecha_recepcion') or None  # Tratar valor vacío como None
         cantidad = int(request.POST.get('cantidad'))
         cod = request.POST.get('cod')
         status = request.POST.get('status')
-        
+
         # Obtener el precio y convertirlo a float
         precio_str = request.POST.get('precio')
         precio = Decimal(precio_str.replace(',', '.')) if precio_str else None
@@ -547,7 +618,7 @@ def editar_item(request, item_id):
             item = form.save(commit=False)
             item.usuario = request.user
             item.save()
-
+            form.save_m2m()  # Guardar relaciones Many-to-Many
             descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
             if not descripcion_personalizada:
                 messages.warning(request, 'No se proporcionó ninguna descripción personalizada.')
@@ -569,6 +640,8 @@ def editar_item(request, item_id):
                 messages.success(request, 'Se modificó correctamente el item con la descripción personalizada.')
 
             return redirect('listar_items')
+        else:
+            print(form.errors)  # Print form errors to debug
     else:
         form = ItemForm(instance=item)
 
@@ -580,6 +653,9 @@ def editar_item(request, item_id):
         'marcas': marcas,
         'proveedores': proveedores
     })
+
+
+
 
 
 
@@ -671,12 +747,56 @@ def Recetas_registrar(request):
 
 
 
-
-
-permission_required('app.change_Recetas')  
+@permission_required('app.change_receta')
 @login_required
-def Recetas_editar(request):
-    return render(request, 'editar_receta.html') 
+def editar_receta(request, receta_id):
+    receta = get_object_or_404(Receta, pk=receta_id)
+
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+
+        # Update the recipe with the new name and description
+        receta.nombre = nombre
+        receta.descripcion = descripcion
+        receta.save()
+
+        # Get the lists of ingredient and sub-recipe values from the form
+        ingredientes = request.POST.getlist('ingredientes')
+        cantidades = request.POST.getlist('cantidades')
+        subrecetas = request.POST.getlist('subrecetas')
+        subcantidades = request.POST.getlist('subcantidades')
+
+        # Update the recipe items (ingredients)
+        for i, ingrediente_id in enumerate(ingredientes):
+            cantidad = cantidades[i]
+            receta_item, created = RecetaItem.objects.get_or_create(receta=receta, registro_id=ingrediente_id)
+            receta_item.cantidad = cantidad
+            receta_item.save()
+
+        # Update the sub-recipes
+        for i, subreceta_id in enumerate(subrecetas):
+            cantidad = subcantidades[i]
+            subreceta, created = Receta.objects.get_or_create(receta=receta, subreceta_id=subreceta_id)
+            subreceta.cantidad = cantidad
+            subreceta.save()
+
+        messages.success(request, 'Receta editada exitosamente')
+        return redirect('/recetas/')  # Redirige a la lista de recetas después de editar
+
+    registros = Registro.objects.all()  # Obtén todos los registros disponibles
+    recetas = Receta.objects.all()  # Obtén todas las recetas disponibles
+    subrecetas = receta.receta_principal.all()  # Obtén las subrecetas de la receta actual
+
+    context = {
+        'receta': receta,
+        'registros': registros,
+        'recetas': recetas,
+        'subrecetas': subrecetas,
+    }
+
+    return render(request, 'editar_receta.html', context)
+
 
 from django.http import JsonResponse
 
@@ -986,15 +1106,21 @@ def eliminar_location(request, location_id):
 
 
 
+
+from django.utils import timezone
+import pytz
+
 @login_required
 def lista_usos_receta(request):
     usos_recetas = UsoReceta.objects.all().order_by('-fecha_uso')
+    mexico_tz = pytz.timezone('America/Mexico_City')
+    for uso in usos_recetas:
+        uso.fecha_uso_mexico = uso.fecha_uso.astimezone(mexico_tz)
     context = {
         'usos_recetas': usos_recetas
     }
     return render(request, 'lista_usos_receta.html', context)
 
-import datetime
 @login_required
 def generar_reporte(request):
     if request.method == 'POST':
@@ -1007,37 +1133,73 @@ def generar_reporte(request):
 
             usos_recetas = UsoReceta.objects.filter(fecha_uso__date__range=(fecha_inicio, fecha_fin)).order_by('-fecha_uso')
 
+            # Agrupar los usos de recetas por nombre
+            receta_agrupada = defaultdict(lambda: {'cantidad': 0, 'cotizacion_total': 0})
+            for uso in usos_recetas:
+                receta_agrupada[uso.receta.nombre]['cantidad'] += uso.cantidad
+                receta_agrupada[uso.receta.nombre]['cotizacion_total'] += uso.cotizacion_total
+
             # Crear el PDF
             buffer = BytesIO()
             p = canvas.Canvas(buffer, pagesize=letter)
 
+            # Añadir la imagen más abajo y más estirada
+            image_path = 'app/static/imagenes/uusmb.png'
+            p.drawImage(image_path, 0.5 * inch, 9.5 * inch, width=2 * inch, height=1 * inch)  # Ajustar la posición y tamaño
+
             # Título del reporte
-            p.drawString(1 * inch, 10 * inch, f"Reporte de Usos de Recetas del {fecha_inicio} al {fecha_fin}")
+            p.setFont("Helvetica-Bold", 16)
+            p.drawCentredString(4.25 * inch, 10 * inch, "Reporte de Recetas")  # Ajustar la posición del título
+
+            # Subtítulo con fechas
+            p.setFont("Helvetica", 12)
+            p.drawCentredString(4.25 * inch, 9.7 * inch, f"Del {fecha_inicio.strftime('%d/%m/%Y')} al {fecha_fin.strftime('%d/%m/%Y')}")
+
+            # Líneas divisorias
+            p.setStrokeColor(colors.black)
+            p.setLineWidth(1)
+            p.line(0.5 * inch, 9.5 * inch, 7.5 * inch, 9.5 * inch)
 
             # Table headers
-            p.drawString(0.5 * inch, 9.5 * inch, "Receta")
-            p.drawString(2 * inch, 9.5 * inch, "Cantidad")
-            p.drawString(3 * inch, 9.5 * inch, "Cotización Total")
-            p.drawString(5 * inch, 9.5 * inch, "Fecha de Uso")
+            p.setFont("Helvetica-Bold", 12)
+            p.drawString(0.5 * inch, 9.0 * inch, "Receta")
+            p.drawString(2 * inch, 9.0 * inch, "Cantidad")
+            p.drawString(3.5 * inch, 9.0 * inch, "Cotización Total")
 
-            y = 9.25 * inch
+            # Líneas divisorias
+            p.setLineWidth(0.5)
+            p.line(0.5 * inch, 8.95 * inch, 7.5 * inch, 8.95 * inch)
+
+            y = 8.75 * inch
             total_cantidad = 0
             total_costo = 0
 
-            for uso in usos_recetas:
-                p.drawString(0.5 * inch, y, uso.receta.nombre)
-                p.drawString(2 * inch, y, str(uso.cantidad))
-                p.drawString(3 * inch, y, f"${uso.cotizacion_total:.2f}")
-                p.drawString(5 * inch, y, uso.fecha_uso.strftime('%d %b %Y %H:%M'))
+            # Contenido de la tabla
+            p.setFont("Helvetica", 10)
+            for nombre_receta, datos in receta_agrupada.items():
+                p.drawString(0.5 * inch, y, nombre_receta)
+                p.drawString(2 * inch, y, str(datos['cantidad']))
+                p.drawString(3.5 * inch, y, f"${datos['cotizacion_total']:.2f}")
 
-                total_cantidad += uso.cantidad
-                total_costo += uso.cotizacion_total
+                total_cantidad += datos['cantidad']
+                total_costo += datos['cotizacion_total']
 
                 y -= 0.25 * inch
 
+                if y < 1 * inch:
+                    p.showPage()
+                    p.setFont("Helvetica-Bold", 12)
+                    p.drawString(0.5 * inch, 9.5 * inch, "Receta")
+                    p.drawString(2 * inch, 9.5 * inch, "Cantidad")
+                    p.drawString(3.5 * inch, 9.5 * inch, "Cotización Total")
+                    p.setFont("Helvetica", 10)
+                    y = 9.25 * inch
+
             # Totales
+            y -= 0.25 * inch
+            p.setFont("Helvetica-Bold", 12)
             p.drawString(1 * inch, y, f"Total Cantidad: {total_cantidad}")
-            p.drawString(3 * inch, y, f"Total Costo: ${total_costo:.2f}")
+            p.drawString(3.5 * inch, y, f"Total Costo: ${total_costo:.2f}")
 
             p.showPage()
             p.save()
@@ -1052,4 +1214,115 @@ def generar_reporte(request):
             return response
 
     return render(request, 'generar_reporte.html')
+
+
+from django.contrib.auth.models import Group, Permission
+@login_required
+def crear_grupo(request):
+    # Diccionario para traducir los nombres de los permisos
+    permisos_traduccion = {
+        'Can add bitacora': 'Puede agregar bitácora',
+        'Can change bitacora': 'Puede cambiar bitácora',
+        'Can delete bitacora': 'Puede eliminar bitácora',
+        'Can view bitacora': 'Puede ver bitácora',
+        'Can add item': 'Puede agregar ítem',
+        'Can change item': 'Puede cambiar ítem',
+        'Can delete item': 'Puede eliminar ítem',
+        'Can view item': 'Puede ver ítem',
+        'Can add location': 'Puede agregar ubicación',
+        'Can change location': 'Puede cambiar ubicación',
+        'Can delete location': 'Puede eliminar ubicación',
+        'Can view location': 'Puede ver ubicación',
+        'Can add marca': 'Puede agregar marca',
+        'Can change marca': 'Puede cambiar marca',
+        'Can delete marca': 'Puede eliminar marca',
+        'Can view marca': 'Puede ver marca',
+        'Can add proveedor': 'Puede agregar proveedor',
+        'Can change proveedor': 'Puede cambiar proveedor',
+        'Can delete proveedor': 'Puede eliminar proveedor',
+        'Can view proveedor': 'Puede ver proveedor',
+        'Can add receta': 'Puede agregar receta',
+        'Can change receta': 'Puede cambiar receta',
+        'Can delete receta': 'Puede eliminar receta',
+        'Can view receta': 'Puede ver receta',
+        'Can add receta item': 'Puede agregar ítem de receta',
+        'Can change receta item': 'Puede cambiar ítem de receta',
+        'Can delete receta item': 'Puede eliminar ítem de receta',
+        'Can view receta item': 'Puede ver ítem de receta',
+        'Can add receta receta': 'Puede agregar receta de receta',
+        'Can change receta receta': 'Puede cambiar receta de receta',
+        'Can delete receta receta': 'Puede eliminar receta de receta',
+        'Can view receta receta': 'Puede ver receta de receta',
+        'Can add registro': 'Puede agregar registro',
+        'Can change registro': 'Puede cambiar registro',
+        'Can delete registro': 'Puede eliminar registro',
+        'Can view registro': 'Puede ver registro',
+        'Can add type': 'Puede agregar tipo',
+        'Can change type': 'Puede cambiar tipo',
+        'Can delete type': 'Puede eliminar tipo',
+        'Can view type': 'Puede ver tipo',
+        'Can add uso receta': 'Puede agregar uso de receta',
+        'Can change uso receta': 'Puede cambiar uso de receta',
+        'Can delete uso receta': 'Puede eliminar uso de receta',
+        'Can view uso receta': 'Puede ver uso de receta',
+        'Can add group': 'Puede agregar grupo',
+        'Can change group': 'Puede cambiar grupo',
+        'Can delete group': 'Puede eliminar grupo',
+        'Can view group': 'Puede ver grupo',
+        'Can add permission': 'Puede agregar permiso',
+        'Can change permission': 'Puede cambiar permiso',
+        'Can delete permission': 'Puede eliminar permiso',
+        'Can view permission': 'Puede ver permiso',
+        'Can add content type': 'Puede agregar tipo de contenido',
+        'Can change content type': 'Puede cambiar tipo de contenido',
+        'Can delete content type': 'Puede eliminar tipo de contenido',
+        'Can view content type': 'Puede ver tipo de contenido',
+        'Can add session': 'Puede agregar sesión',
+        'Can change session': 'Puede cambiar sesión',
+        'Can delete session': 'Puede eliminar sesión',
+        'Can view session': 'Puede ver sesión',
+        'Can add user': 'Puede agregar usuario',
+        'Can change user': 'Puede cambiar usuario',
+        'Can delete user': 'Puede eliminar usuario',
+        'Can view user': 'Puede ver usuario'
+    }
+
+    if request.method == 'POST':
+        group_name = request.POST.get('group_name')
+        permissions = request.POST.getlist('permissions')
+
+        if group_name:
+            group, created = Group.objects.get_or_create(name=group_name)
+            if created:
+                for perm_id in permissions:
+                    perm = Permission.objects.get(id=perm_id)
+                    group.permissions.add(perm)
+                messages.success(request, 'Grupo creado exitosamente.')
+            else:
+                messages.error(request, 'El nombre del grupo ya existe.')
+
+        return redirect('asignar_permisos')  # Redirigir a la página de asignación de permisos
+
+    # Filtrar los permisos de acuerdo a las especificaciones
+    permisos = Permission.objects.filter(
+        content_type__app_label='app',
+        content_type__model__in=[
+            'bitacora', 'item', 'location', 'marca', 'proveedor', 'receta', 'registro', 'type', 'group', 'permission'
+        ]
+    ).exclude(
+        content_type__model='bitacora',
+        codename__in=['add_bitacora', 'change_bitacora', 'delete_bitacora']
+    )
+
+    # Traducir los nombres de los permisos
+    for permiso in permisos:
+        permiso.name = permisos_traduccion.get(permiso.name, permiso.name)
+
+    return render(request, 'crear_grupo.html', {'permisos': permisos})
+
+
+
+
+
+
 

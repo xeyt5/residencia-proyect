@@ -3,77 +3,122 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Editar Registro</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_item.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/editar_recetas.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Editar Receta</title>
 </head>
 <body>
-    <nav class="navbar">
-        <ul>
-            <li><a href="/perfil/">Perfil</a></li>
-            <li><a href="/">Inicio</a></li>
-            {% if perms.app.view_item %}
-            <li><a href="/inventario/">Inventario</a></li>
-            {% endif %}
-            {% if perms.app.view_item %}
-            <li><a href="{% url 'listar_items' %}">Items</a></li>
-            {% endif %}
-            <li><a href="/recetas/">Recetas</a></li>
-            <li><a href="/bitacora/">Bitácora</a></li>
-            {% if perms.app.view_marca %}
-            <li><a href="/marca/">Marca</a></li>
-            {% endif %}
-            {% if perms.app.view_proveedor %}
-            <li><a href="/proveedores/">Proveedores</a></li>
-            {% endif %}
-            {% if perms.app.view_auth_permission %}
-            <li><a href="/asignar-permisos/">Permisos</a></li>
-            {% endif %}
-            <li>
-                <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
-            </li>
-        </ul>
-    </nav>
-    <br><br><br>
-    <h1>Editar Receta</h1>
     <div class="container">
-        <div class="edit">
-            <form id="editForm" method="post">
-                {% csrf_token %}
-                <div class="column-left">
-                    <label for="nombre">Nombre:</label><br>
-                    <input type="text" id="contenido" name="contenido" value=""><br>
-
-
-                    <label for="contenido">ingredientes:</label><br>
-                    <input type="text" id="contenido" name="contenido" value=""><br>
-                    
-                    <label for="descripcion">descripcion:</label><br>
-                    <input type="text" id="descripcion" name="descripcion" value="" ><br>
-                    
-                    <label for="tipo">sub recetas:</label><br>
-                    <input type="text" id="unidad_medida" name="unidad_medida" value="" ><br>
-                <button type="button" id="submitBtn">Guardar</button>
-            </form>
-        </div>
+        <nav class="navbar">
+            <ul>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {%if perms.app.view_registro%}
+                <li><a href="/inventario/">Inventario</a></li>
+                {%endif%}
+                <li><a href="/recetas/">Recetas</a></li>
+                {% if perms.app.view_item %}
+                <li><a href="{% url 'listar_items' %}">Items</a></li>  
+                {% endif %}
+                {% if perms.app.view_marca %}
+                <li><a href="/marca/">Marca</a></li>
+                {% endif %}
+                {% if perms.app.view_proveedor %}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {% endif %}
+                {% if perms.app.view_type %}
+                <li><a href="/tipos/">Tipos</a></li>
+                {% endif %}
+                {% if perms.app.view_locatios %}
+                <li><a href="/listar-locations/">Equipos</a></li>
+                {% endif %}
+                {% if perms.app.view_bitacora %}
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {% endif %}
+                {% if perms.app.view_auth_permission %}
+                <li><a href="/asignar-permisos/">Permisos</a></li>
+                {% endif %}
+                <li><a href="/usos-receta/">Reporte</a></li>
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Salir</a></div>
+                </li>
+            </ul>
+        </nav>
+        <br><br><br>
+        <h1>Editar Receta</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="nombre">Nombre:</label><br>
+            <input type="text" id="nombre" name="nombre" value="{{ receta.nombre }}"><br><br>
+            <label for="descripcion">Descripción:</label><br>
+            <input type="text" id="descripcion" name="descripcion" value="{{ receta.descripcion }}"><br><br>
+            
+            <h2>Ingredientes</h2>
+            <div id="ingredientes-container">
+                {% for receta_item in receta.recetaitem_set.all %}
+                <div class="ingrediente">
+                    <select name="ingredientes">
+                        {% for registro in registros %}
+                        <option value="{{ registro.id }}" {% if registro.id == receta_item.registro.id %} selected {% endif %}>{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="cantidades" placeholder="Cantidad" value="{{ receta_item.cantidad }}">
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" onclick="addIngrediente()">Agregar ingrediente</button><br><br>
+            
+            <h2>Sub Recetas</h2>
+            <div id="subrecetas-container">
+                {% for subreceta in subrecetas %}
+                <div class="subreceta">
+                    <select name="subrecetas">
+                        {% for receta in recetas %}
+                        <option value="{{ receta.id }}" {% if receta.id == subreceta.subreceta.id %} selected {% endif %}>{{ receta.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="number" name="subcantidades" placeholder="Cantidad" value="{{ subreceta.cantidad }}">
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" onclick="addSubreceta()">Agregar sub receta</button><br><br>
+            
+            
+            <button type="submit" class='guardar'>Guardar cambios</button>
+        </form>
     </div>
 
     <script>
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            Swal.fire({
-                title: '¿Seguro que quieres editar este registro?',
-                text: "Asegúrate de que los datos son correctos.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, editar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('editForm').submit();
-                }
-            });
-        });
+        function addIngrediente() {
+            const container = document.getElementById('ingredientes-container');
+            const ingredienteDiv = document.createElement('div');
+            ingredienteDiv.className = 'ingrediente';
+            ingredienteDiv.innerHTML = `
+                <select name="ingredientes">
+                    {% for registro in registros %}
+                    <option value="{{ registro.id }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="cantidades" placeholder="Cantidad">
+            `;
+            container.appendChild(ingredienteDiv);
+        }
+
+        function addSubreceta() {
+            const container = document.getElementById('subrecetas-container');
+            const subrecetaDiv = document.createElement('div');
+            subrecetaDiv.className = 'subreceta';
+            subrecetaDiv.innerHTML = `
+                <select name="subrecetas">
+                    {% for subreceta in recetas %}
+                    <option value="{{ subreceta.id }}">{{ subreceta.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="subcantidades" placeholder="Cantidad">
+            `;
+            container.appendChild(subrecetaDiv);
+        }
     </script>
 </body>
 </html>

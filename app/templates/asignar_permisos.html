@@ -6,31 +6,41 @@
     <title>Asignar Permisos</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/asignar.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body>
     <nav class="navbar">
         <ul>
             <li><a href="/perfil/">Perfil</a></li>
             <li><a href="/">Inicio</a></li>
-            {% if perms.app.view_item %}
+            {% if perms.app.view_registro %}
             <li><a href="/inventario/">Inventario</a></li>
             {% endif %}
-            {% if perms.app.view_item %}
-            <li><a href="{% url 'listar_items' %}">Items</a></li>
-            {% endif %}
             <li><a href="/recetas/">Recetas</a></li>
-            <li><a href="/bitacora/">Bitácora</a></li>
+            {% if perms.app.view_item %}
+            <li><a href="{% url 'listar_items' %}">Items</a></li>  
+            {% endif %}
             {% if perms.app.view_marca %}
             <li><a href="/marca/">Marca</a></li>
             {% endif %}
             {% if perms.app.view_proveedor %}
             <li><a href="/proveedores/">Proveedores</a></li>
             {% endif %}
+            {% if perms.app.view_type %}
+            <li><a href="/tipos/">Tipos</a></li>
+            {% endif %}
+            {% if perms.app.view_locatios %}
+            <li><a href="/listar-locations/">Equipos</a></li>
+            {% endif %}
+            {% if perms.app.view_bitacora %}
+            <li><a href="/bitacora/">Bitácora</a></li>
+            {% endif %}
             {% if perms.app.view_auth_permission %}
             <li><a href="/asignar-permisos/">Permisos</a></li>
             {% endif %}
+            <li><a href="/usos-receta/">Reporte</a></li>
             <li>
-                <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
+                <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Salir</a></div>
             </li>
         </ul>
     </nav>
@@ -46,7 +56,7 @@
             {% endfor %}
         </ul>
     {% endif %}
-    
+
     <form method="get">
         <label for="username">Seleccione un usuario:</label>
         <select name="username" id="username" onchange="this.form.submit()">
@@ -64,6 +74,16 @@
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="username" value="{{ selected_username }}">
+            
+            <label for="group_select">Seleccione un grupo:</label>
+            <select name="group_select" id="group_select" onchange="loadGroupPermissions(this.value)">
+                <option value="">--Seleccione un grupo--</option>
+                {% for grupo in grupos %}
+                    <option value="{{ grupo.id }}">{{ grupo.name }}</option>
+                {% endfor %}
+            </select>
+            <br><br>
+            
             <div class='cajapermisos'>
             {% for permiso in permisos %}
                 <div>
@@ -78,9 +98,11 @@
                 <label for="is_active">Activo</label>
             </div>
             </div>
-            <br>
-            <button type="submit">Guardar</button>
-            <br>
+            <br><br><br>
+            <div class="button-container">
+                <button type="submit" class="save-button">Guardar</button>
+            </div>
+            <br><br><br><br>
         </form>
         
         <form id="delete-user-form" method="post" action="{% url 'asignar_permisos' %}">
@@ -89,8 +111,18 @@
             <input type="hidden" name="delete_user" value="true">
             <button type="button" class="delete-button" onclick="confirmDelete()">Eliminar Usuario</button>
         </form>
+
+        <form id="make-superuser-form" method="post" action="{% url 'asignar_permisos' %}">
+            {% csrf_token %}
+            <input type="hidden" name="username" value="{{ selected_username }}">
+            <input type="hidden" name="make_superuser" value="true">
+            <button type="submit" class="superuser-button">Hacer Superusuario</button>
+        </form>
     {% endif %}
     </div>
+    <br><br><br>
+
+    <a href="{% url 'crear_grupo' %}"><button>Crear Grupo</button></a>
     <br><br><br>
 
     <script>
@@ -124,6 +156,32 @@
                 {% endif %}
             {% endfor %}
         {% endif %}
+
+        function loadGroupPermissions(groupId) {
+            if (groupId) {
+                fetch(`/api/group-permissions/${groupId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const groupPermissionsDiv = document.getElementById('group_permissions');
+                        const checkboxes = document.querySelectorAll('input[type="checkbox"][name="permissions"]');
+
+                        // Clear all checkboxes
+                        checkboxes.forEach(checkbox => checkbox.checked = false);
+
+                        // Check the permissions that belong to the group
+                        data.permissions.forEach(permission => {
+                            const checkbox = document.getElementById(`permiso_${permission.id}`);
+                            if (checkbox) {
+                                checkbox.checked = true;
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Error fetching group permissions:', error));
+                } else {
+                    const groupPermissionsDiv = document.getElementById('group_permissions');
+                    groupPermissionsDiv.innerHTML = '';
+                }
+        }
     </script>
 </body>
 </html>

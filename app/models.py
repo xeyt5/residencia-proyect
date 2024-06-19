@@ -333,13 +333,13 @@ def registrar_eliminacion_type(sender, instance, **kwargs):
     )
 
 
-@receiver(post_save, sender=Location)
+@receiver(post_save, sender=Proveedor)
 def registrar_cambio_provedor(sender, instance, created, **kwargs):
     if created:
         Bitacora.objects.create(
             accion='Crear',
             usuario=instance.usuario,
-            modelo='Location',
+            modelo='Proveedor',
             instancia_id=instance.id,
             descripcion=f'Se creó la localizacion con ID {instance.id} y nombre {instance.nombre}'
         )

@@ -13,34 +13,37 @@
     <div class="container">
         <nav class="navbar">
             <ul>
-                <nav class="navbar">
-                    <ul>
-                        <li><a href="/perfil/">Perfil</a></li>
-                        <li><a href="/">Inicio</a></li>
-                        {%if perms.app.view_registro%}
-                        <li><a href="/inventario/">Inventario</a></li>
-                        {%endif%}
-                        {% if perms.app.view_item %}
-                        <li><a href="{% url 'listar_items' %}">Items</a></li>  
-                        {% endif %}
-                        <li><a href="/recetas/">Recetas</a></li>
-                        {% if perms.app.view_bitacora %}
-                        <li><a href="/bitacora/">Bitácora</a></li>
-                        {% endif %}
-                        {% if perms.app.view_marca %}
-                        <li><a href="/marca/">Marca</a></li>
-                        {% endif %}
-                        {% if perms.app.view_proveedor %}
-                        <li><a href="/proveedores/">Proveedores</a></li>
-                        {% endif %}
-                        {% if perms.app.view_auth_permission %}
-                        <li><a href="/asignar-permisos/">Permisos</a></li>
-                        {% endif %}
-                        <li>
-                            <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">salir</a></div>
-                        </li>
-                    </ul>
-                </nav>
+                <li><a href="/perfil/">Perfil</a></li>
+                <li><a href="/">Inicio</a></li>
+                {%if perms.app.view_registro%}
+                <li><a href="/inventario/">Inventario</a></li>
+                {%endif%}
+                <li><a href="/recetas/">Recetas</a></li>
+                {% if perms.app.view_item %}
+                <li><a href="{% url 'listar_items' %}">Items</a></li>  
+                {% endif %}
+                {% if perms.app.view_marca %}
+                <li><a href="/marca/">Marca</a></li>
+                {% endif %}
+                {% if perms.app.view_proveedor %}
+                <li><a href="/proveedores/">Proveedores</a></li>
+                {% endif %}
+                {% if perms.app.view_type %}
+                <li><a href="/tipos/">Tipos</a></li>
+                {% endif %}
+                {% if perms.app.view_locatios %}
+                <li><a href="/listar-locations/">Equipos</a></li>
+                {% endif %}
+                {% if perms.app.view_bitacora %}
+                <li><a href="/bitacora/">Bitácora</a></li>
+                {% endif %}
+                {% if perms.app.view_auth_permission %}
+                <li><a href="/asignar-permisos/">Permisos</a></li>
+                {% endif %}
+                <li><a href="/usos-receta/">Reporte</a></li>
+                <li>
+                    <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Salir</a></div>
+                </li>
             </ul>
         </nav>
         <br><br><br><br>
@@ -84,9 +87,9 @@
                         </ul>
                     </td>
                     <td>
-                        <button type="button" onclick="window.location.href=''" class="editar">
+                        <button type="button" onclick="editarReceta('{{ receta.id }}')" class="editar">
                             <img src="{% static 'imagenes/editar.png' %}" alt="Editar">
-                        </button>
+                        </button>                        
                         <br><br>
                         <button type="button" class="eliminar" data-receta-id="{{ receta.id }}">
                             <img src="{% static 'imagenes/borrar.png' %}" alt="Eliminar">
@@ -218,10 +221,10 @@ document.querySelectorAll('.usar-receta').forEach(button => {
                                       <ul>Cantidad: ${cantidad}</ul>
                                       <ul>Costo total: $${data.total_costo.toFixed(2)}</ul>
                                       <ul style="text-align: left; list-style-type: none; padding: 0;font-size: larger; position: relative; color: black;">Ingredientes:</ul> 
-                                      <ul style="text-align: left; list-style-type: none; padding: 0;">
+                                      <ul style="text-align: center; list-style-type: none; padding: 0;">
                                       ${data.ingredientes.join('</ul><ul>')}</ul>
                                       <ul style="text-align: left; list-style-type: none; padding: 0;font-size: larger; position: relative; color: black;">Sub receta:</ul> 
-                                      <ul style="text-align: left; list-style-type: none; padding: 0;">
+                                      <ul style="text-align: center; list-style-type: none; padding: 0;">
                                       ${data.subrecetas.join('</ul><ul>')}</ul>
                                   `,
                                   icon: 'info',
@@ -354,6 +357,11 @@ document.querySelectorAll('.usar-receta').forEach(button => {
             });
         });
         
+    </script>
+    <script>
+        function editarReceta(recetaId) {
+            window.location.href = `/editar-receta/${recetaId}/`;
+        }
     </script>
 </body>
 </html>

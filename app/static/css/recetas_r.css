@@ -101,22 +101,16 @@ select{
   font-size: 13px;
 }
 
-.cantidad{
-  width: 15%;
+input{
+  width: 43.3%;
   padding: 10px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
   font-family: sans-serif;
   font-size: 15px;
 }
-.cantidads{
-  width: 43%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  font-family: sans-serif;
-  font-size: 15px;
-}
+
+
 
 #id_types, #id_locations, #id_marcas, #id_proveedores, #id_pregunta_recuperacion, #fecha_caducidad,#fecha_recepcion{
   width: 99%;
@@ -174,7 +168,7 @@ strong, small{
 }
 
 .unidad-medida{
-  width: 23%;
+  width: 96%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ccc;

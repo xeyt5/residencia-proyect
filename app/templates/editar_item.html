@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,23 +12,32 @@
         <ul>
             <li><a href="/perfil/">Perfil</a></li>
             <li><a href="/">Inicio</a></li>
-            {% if perms.app.view_item %}
+            {% if perms.app.view_registro %}
             <li><a href="/inventario/">Inventario</a></li>
             {% endif %}
+            <li><a href="/recetas/">Recetas</a></li>
             {% if perms.app.view_item %}
             <li><a href="{% url 'listar_items' %}">Items</a></li>
             {% endif %}
-            <li><a href="/recetas/">Recetas</a></li>
-            <li><a href="/bitacora/">Bitácora</a></li>
             {% if perms.app.view_marca %}
             <li><a href="/marca/">Marca</a></li>
             {% endif %}
             {% if perms.app.view_proveedor %}
             <li><a href="/proveedores/">Proveedores</a></li>
             {% endif %}
+            {% if perms.app.view_type %}
+            <li><a href="/tipos/">Tipos</a></li>
+            {% endif %}
+            {% if perms.app.view_locatios %}
+            <li><a href="/listar-locations/">Equipos</a></li>
+            {% endif %}
+            {% if perms.app.view_bitacora %}
+            <li><a href="/bitacora/">Bitácora</a></li>
+            {% endif %}
             {% if perms.app.view_auth_permission %}
             <li><a href="/asignar-permisos/">Permisos</a></li>
             {% endif %}
+            <li><a href="/usos-receta/">Reporte</a></li>
             <li>
                 <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Salir</a></div>
             </li>
@@ -64,7 +72,7 @@
                 <label for="types">Tipo:</label>
                 <select id="types" name="types" required>
                     {% for type in types %}
-                    <option value="{{ type.id }}" {% if type.id == item.tipo.id %} selected {% endif %}>{{ type.nombre }}</option>
+                    <option value="{{ type.id }}" {% if type.id == item.types.id %} selected {% endif %}>{{ type.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -72,19 +80,19 @@
                 <label for="locations">Ubicación:</label>
                 <select id="locations" name="locations" required onchange="changeLocation()">
                     {% for location in locations %}
-                    <option value="{{ location.id }}" data-nivel="{{ location.nivel }}" {% if location.id == item.ubicacion.id %} selected {% endif %}>{{ location.equipo }}</option>
+                    <option value="{{ location.id }}" data-nivel="{{ location.nivel }}" {% if location.id == item.locations.id %} selected {% endif %}>{{ location.equipo }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div>
                 <label for="nivel">Nivel:</label>
-                <input type="text" id="nivel" name="nivel" value="{{ item.ubicacion.nivel }}" disabled>
+                <input type="text" id="nivel" name="nivel" value="{{ item.locations.nivel }}" disabled>
             </div>
             <div>
                 <label for="marcas">Marca:</label>
                 <select id="marcas" name="marcas" required>
                     {% for marca in marcas %}
-                    <option value="{{ marca.id }}" {% if marca.id == item.marca.id %} selected {% endif %}>{{ marca.nombre }}</option>
+                    <option value="{{ marca.id }}" {% if marca.id == item.marcas.id %} selected {% endif %}>{{ marca.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -92,7 +100,7 @@
                 <label for="proveedores">Proveedor:</label>
                 <select id="proveedores" name="proveedores" required>
                     {% for proveedor in proveedores %}
-                    <option value="{{ proveedor.id }}" {% if proveedor.id == item.proveedor.id %} selected {% endif %}>{{ proveedor.nombre }}</option>
+                    <option value="{{ proveedor.id }}" {% if proveedor.id == item.proveedores.id %} selected {% endif %}>{{ proveedor.nombre }}</option>
                     {% endfor %}
                 </select>
             </div>

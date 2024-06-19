@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Grupo</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/asignar.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .space {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .button-space {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li><a href="/perfil/">Perfil</a></li>
+            <li><a href="/">Inicio</a></li>
+            {% if perms.app.view_registro %}
+            <li><a href="/inventario/">Inventario</a></li>
+            {% endif %}
+            <li><a href="/recetas/">Recetas</a></li>
+            {% if perms.app.view_item %}
+            <li><a href="{% url 'listar_items' %}">Items</a></li>  
+            {% endif %}
+            {% if perms.app.view_marca %}
+            <li><a href="/marca/">Marca</a></li>
+            {% endif %}
+            {% if perms.app.view_proveedor %}
+            <li><a href="/proveedores/">Proveedores</a></li>
+            {% endif %}
+            {% if perms.app.view_type %}
+            <li><a href="/tipos/">Tipos</a></li>
+            {% endif %}
+            {% if perms.app.view_locatios %}
+            <li><a href="/listar-locations/">Equipos</a></li>
+            {% endif %}
+            {% if perms.app.view_bitacora %}
+            <li><a href="/bitacora/">Bitácora</a></li>
+            {% endif %}
+            {% if perms.app.view_auth_permission %}
+            <li><a href="/asignar-permisos/">Permisos</a></li>
+            {% endif %}
+            <li><a href="/usos-receta/">Reporte</a></li>
+            <li>
+                <div class="cerrar-sesion"><a href="{% url 'salir' %}" class="cerrar-sesion">Salir</a></div>
+            </li>
+        </ul>
+    </nav>
+    <br><br><br><br><br>
+    <h1>Crear Grupo</h1>
+    <br><br>
+    <div class='permisos'>
+    {% if messages %}
+        <ul class="messages">
+            <br><br><br>
+            {% for message in messages %}
+                <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        <label for="group_name">Nombre del Grupo:</label>
+        <input type="text" name="group_name" id="group_name" required>
+        <br><br>
+        <h2>Permisos</h2>
+        <button type="button" onclick="toggleSelection()">Seleccionar todo</button>
+        <div class="space"></div>
+        <div class='cajapermisos'>
+            {% for permiso in permisos %}
+                <div>
+                    <input type="checkbox" name="permissions" value="{{ permiso.id }}" id="permiso_{{ permiso.id }}">
+                    <label for="permiso_{{ permiso.id }}">{{ permiso.name }}</label>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="button-space"></div>
+        <button type="submit">Crear Grupo</button>
+    </form>
+    <br><br><br>
+    </div>
+
+    <script>
+        function toggleSelection() {
+            const checkboxes = document.querySelectorAll('input[name="permissions"]');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            checkboxes.forEach(checkbox => checkbox.checked = !allChecked);
+        }
+    </script>
+</body>
+</html>

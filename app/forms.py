@@ -4,6 +4,7 @@ from user.models import User
 from django.core.exceptions import ValidationError
 from django import forms
 from .models import Item, Registro, Type, Location, Marca, Proveedor
+from .models import Receta, RecetaItem, RecetaReceta
 
 class CustomUserCreationForm(UserCreationForm):
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
@@ -73,16 +74,24 @@ class proveedorForm(forms.ModelForm):
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ['nombre', 'contenido', 'unidad_de_medida', 'stock','stock_minimo','types', 'locations', 'marcas', 'proveedores']
-        
+        fields = ['nombre', 'contenido', 'unidad_de_medida', 'stock', 'stock_minimo', 'types', 'locations', 'marcas', 'proveedores']
+        widgets = {
+            'types': forms.CheckboxSelectMultiple,
+            'locations': forms.CheckboxSelectMultiple,
+            'marcas': forms.CheckboxSelectMultiple,
+            'proveedores': forms.CheckboxSelectMultiple,
+        }
         
 class TypeForm(forms.ModelForm):
     class Meta:
         model = Type
         fields = ['nombre', 'descripcion']
 
+
 class LocationForm(forms.ModelForm):
     class Meta:
         model = Location
-        fields = ['equipo', 'nivel', 'descripcion']
+        fields = ('equipo', 'nivel', 'descripcion')  # Remove 'nombre' from the fields
+        
+
         

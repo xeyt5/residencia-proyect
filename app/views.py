@@ -352,6 +352,10 @@ def editar_proveedor(request, proveedor_id):
 
 
     
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
+
 @login_required
 def perfil(request):
     user = request.user
@@ -360,17 +364,30 @@ def perfil(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Se modificaron tus datos")
-            # Autenticar nuevamente al usuario para mantenerlo conectado
             user = authenticate(request, username=user.username)
             if user is not None:
                 login(request, user)
-                # Save the session to maintain the user's authentication
                 request.session.save()
             return redirect('perfil')
     else:
         form = CustomUserChangeForm(instance=user)
     
     return render(request, 'perfil.html', {'form': form})
+
+@login_required
+def cambiar_contrasena(request):
+    if request.method == 'POST':
+        password_form = PasswordChangeForm(request.user, request.POST)
+        if password_form.is_valid():
+            password_form.save()
+            messages.success(request, "Contraseña actualizada correctamente")
+            update_session_auth_hash(request, password_form.user)
+            return redirect('perfil')
+    else:
+        password_form = PasswordChangeForm(request.user)
+    
+    return render(request, 'cambiar_contrasena.html', {'password_form': password_form})
+
 
 
 @permission_required('app.view_registro')
@@ -407,16 +424,18 @@ def editar_registro(request, registro_id):
     items = Item.objects.all()
     
     if request.method == 'POST':
+        # Procesamiento del formulario cuando se envía por POST
+        
         registro.cod_barras = request.POST.get('cod_barras')
         registro.no_referencia_inv = request.POST.get('no_referencia_inv')
         
         fecha_caducidad = request.POST.get('fecha_caducidad')
         if fecha_caducidad:
-            registro.fecha_caducidad = fecha_caducidad
+            registro.fecha_caducidad = datetime.strptime(fecha_caducidad, '%Y-%m-%d').date()
             
         fecha_recepcion = request.POST.get('fecha_recepcion')
-        if (fecha_recepcion):
-            registro.fecha_recepcion = fecha_recepcion
+        if fecha_recepcion:
+            registro.fecha_recepcion = datetime.strptime(fecha_recepcion, '%Y-%m-%d').date()
             
         registro.lote = request.POST.get('lote')
         nueva_cantidad = int(request.POST.get('cantidad'))
@@ -445,17 +464,24 @@ def editar_registro(request, registro_id):
         
         item.stock += diferencia_cantidad
         item.save()
+        
         messages.success(request, 'Se modificó correctamente el registro')
-        return redirect('/inventario/')  
+        return redirect('/inventario/')  # Redireccionar a donde sea necesario
     
+    # Si el método HTTP es GET, incluir el precio actual en el contexto
     return render(request, 'editar_registro.html', {
         'registro': registro,
         'item': item,
         'types': types,
         'locations': locations,
         'marcas': marcas,
-        'items': items
+        'items': items,
+        'precio_actual': registro.precio  # Incluir el precio actual del registro
     })
+
+    
+    
+    
 
 from decimal import Decimal
 @permission_required('app.add_registro')

@@ -146,6 +146,18 @@ button[type="submit"]:hover {
     background-color: #3e8e41;
 }
 
+.perfil {
+  background-color: #4CAF50;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.perfil:hover {
+  background-color: #3e8e41;
+}
+
 strong, small{
   display: none;
 }

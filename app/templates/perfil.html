@@ -49,23 +49,26 @@
             <br><br>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {% for field in form %}
-                        {% if field.name != 'password' %}
-                            <p>
-                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <small>{{ field.help_text }}</small>
-                                {% endif %}
-                            </p>
-                        {% else %}
+                {% for field in form %}
+                    {% if field.name != 'password' %}
+                        <p>
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                             {{ field }}
-                        {% endif %}
-                    {% endfor %}
-                    <button type="submit">Guardar cambios</button>
-                </form>
+                            {% if field.help_text %}
+                                <small>{{ field.help_text }}</small>
+                            {% endif %}
+                        </p>
+                    {% else %}
+                        {{ field }}
+                    {% endif %}
+                {% endfor %}
+                <button type="submit" class="perfil">Guardar cambios</button>
+                <a href="{% url 'cambiar_contrasena' %}">
+                    <button type="button" class="perfil">Cambiar contraseña</button>
+                </a>
+            </form>
+
+            <br><br>
         </div>
     </div>
 </body>

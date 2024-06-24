@@ -86,11 +86,11 @@
                     <label for="no_referencia_inv">Número de Referencia:</label><br>
                     <input type="text" id="no_referencia_inv" name="no_referencia_inv" value="{{ registro.no_referencia_inv }}"><br>
                     <label for="fecha_caducidad">Fecha de Caducidad:</label><br>
-                    <input type="date" id="fecha_caducidad" name="fecha_caducidad" value="{{ registro.fecha_caducidad }}"><br>
+                    <input type="date" id="fecha_caducidad" name="fecha_caducidad" value="{% if registro.fecha_caducidad %}{{ registro.fecha_caducidad|date:'Y-m-d' }}{% endif %}"><br>
                     <label for="lote">Lote:</label><br>
                     <input type="text" id="lote" name="lote" value="{{ registro.lote }}"><br>
                     <label for="fecha_recepcion">Fecha de Recepción:</label><br>
-                    <input type="date" id="fecha_recepcion" name="fecha_recepcion" value="{{ registro.fecha_recepcion }}"><br>
+                    <input type="date" id="fecha_recepcion" name="fecha_recepcion" value="{% if registro.fecha_recepcion %}{{ registro.fecha_recepcion|date:'Y-m-d' }}{% endif %}"><br>
                     <label for="cantidad">Cantidad:</label><br>
                     <input type="text" id="cantidad" name="cantidad" value="{{ registro.cantidad }}"><br>
                     <label for="cod">Código:</label><br>
@@ -98,7 +98,7 @@
                     <label for="status">Status:</label><br>
                     <input type="text" id="status" name="status" value="{{ registro.status }}"><br>
                     <label for="precio">Precio:</label><br>
-                    <input type="number" id="precio" name="precio" value="{{ registro.precio }}"><br>
+                    <input type="number" id="precio" name="precio" value="{{ precio_actual }}"><br>                    
                 </div>
                 <button type="button" id="submitBtn">Guardar</button>
             </form>

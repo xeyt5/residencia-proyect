@@ -44,6 +44,7 @@ urlpatterns = [
     path('api/group-permissions/<int:group_id>/', views.get_group_permissions, name='get_group_permissions'),
     path('crear-grupo/', views.crear_grupo, name='crear_grupo'),
     path('perfil/', views.perfil, name='perfil'),
+    path('cambiar-contrasena/', views.cambiar_contrasena, name='cambiar_contrasena'),
     path('acerca/', views.acerca, name='acerca'),
     path('registro/', views.registro, name='registro'),
     path('listar-items/', views.listar_items, name='listar_items'),
@@ -67,6 +68,10 @@ urlpatterns = [
     path('cotizar-receta/<int:receta_id>/', views.cotizar_receta, name='cotizar_receta'),
     path('usos-receta/', views.lista_usos_receta, name='lista_usos_receta'),
     path('generar-reporte/', views.generar_reporte, name='generar_reporte'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]
 
 if settings.DEBUG: 

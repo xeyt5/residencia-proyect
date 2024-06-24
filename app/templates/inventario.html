@@ -99,6 +99,11 @@
                     </th>
                     <th>
                         <form class="filter-form">
+                            <input type="text" id="stock_minimo-filter" placeholder="stock_minimo" class="filter-input">
+                        </form>
+                    </th>
+                    <th>
+                        <form class="filter-form">
                             <input type="text" id="marca-filter" placeholder="Marca" class="filter-input">
                         </form>
                     </th>
@@ -170,6 +175,7 @@
                     <th>Contenido</th>
                     <th>Unidad Medida</th>
                     <th>Stock</th>
+                    <th>Stock Mínimo</th> 
                     <th>Marca</th>
                     <th>Cod barras</th>
                     <th>Numero Referencia</th>
@@ -206,6 +212,7 @@
                     <td>{{ registro.item.contenido }}</td>
                     <td>{{ registro.item.unidad_de_medida }}</td>
                     <td class="stock-cell">{{ registro.item.stock }}</td>
+                    <td>{{ registro.item.stock_minimo }}</td>
                     <td>
                         {% for marca in registro.item.marcas.all %}
                             {{ marca.nombre }}
@@ -380,7 +387,7 @@
             var rows = document.querySelectorAll("tbody tr");
 
             rows.forEach(function(row) {
-                var fechaCaducidadCell = row.querySelector("td:nth-child(10)");
+                var fechaCaducidadCell = row.querySelector("td:nth-child(11)");
                 var fechaCaducidadText = fechaCaducidadCell ? fechaCaducidadCell.textContent.trim() : null;
 
                 if (fechaCaducidadText) {
@@ -423,6 +430,32 @@
                 tbody.appendChild(fila);
             });
         });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var rows = document.querySelectorAll("tbody tr");
+        
+            rows.forEach(function(row) {
+                var stockCell = row.querySelector(".stock-cell");
+                var stockMinimoCell = row.querySelector("td:nth-child(7)"); // Asegúrate de que esta sea la columna correcta para el stock mínimo
+                var backgroundColor = row.style.backgroundColor;
+        
+                if (stockCell && stockMinimoCell) {
+                    var stockValue = parseInt(stockCell.textContent.trim(), 10);
+                    var stockMinimoValue = parseInt(stockMinimoCell.textContent.trim(), 10);
+        
+                    if (stockValue <= stockMinimoValue) {
+                        stockCell.style.color = "red"; // Cambiar el color del texto del stock a rojo
+        
+                        // Si la fila ya está pintada de rojo por la caducidad, poner el texto del stock en blanco
+                        if (backgroundColor === "red") {
+                            stockCell.style.color = "white";
+                        }
+                    }
+                }
+            });
+        });
+        
+        
     </script>
     
 </body>

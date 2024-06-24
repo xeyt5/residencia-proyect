@@ -136,3 +136,4 @@ AUTH_USER_MODEL = 'user.User'
 
 TIME_ZONE = 'America/Mexico_City'
 
+

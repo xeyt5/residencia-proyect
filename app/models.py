@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from user.models import User
 
+
 class Type(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=255)
@@ -84,10 +85,6 @@ class Item(models.Model):
         return self.nombre
 
 
-
-
-from django.db import models
-
 class Registro(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     cod_barras = models.CharField(max_length=100)
@@ -118,7 +115,7 @@ class Registro(models.Model):
         self.item.stock -= self.cantidad
         self.item.save()
         super(Registro, self).delete(*args, **kwargs)
-
+        
 
 class Receta(models.Model):
     nombre = models.CharField(max_length=100)

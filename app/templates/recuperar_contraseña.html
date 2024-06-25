@@ -25,17 +25,17 @@
                 <label for="respuesta" title="Ingrese su respuesta de recuperación">Respuesta de recuperación:</label>
                 <input type="text" name="respuesta_recuperacion" id="respuesta" data-tooltip="Ingrese respuesta de recuperación"><br>
                 <button type="submit">Recuperar Contraseña</button>
+                <br>
+                <label id="mensaje">{% if mensaje %}{{ mensaje }}{% endif %}</label>
             </form>
         </div>
-        <label id="mensaje">{% if mensaje %}{{ mensaje }}{% endif %}</label>
     </div>
     <div class="navbar">
         <ul>
             <li><a href="/">Inicio</a></li>
             <li><a href="/acerca/">Acerca de</a></li>
-            <li><a href="#">Contáctanos</a></li>
             <li><a href="http://www.uusmb.unam.mx/">Página de la Unidad</a></li>
-            <li><a href="/manual/">Manual de Usuario</a></li>
+            <li><a href="{% static 'pdf/sistema.pdf' %}" download>Manual de Usuario</a></li>
         </ul>
     </div>
 </body>

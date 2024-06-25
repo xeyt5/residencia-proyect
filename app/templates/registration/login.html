@@ -28,8 +28,8 @@
                 </label>
                 <button type="submit">Iniciar Sesión</button>
                 <div class="links">
-                    <a href="/registro/">registrarse</a> ||
-                    <a href="/recuperar-contraseña/">olvide clave</a> 
+                    <a href="/registro/">Registrarse</a> ||
+                    <a href="/recuperar-contraseña/">Olvidé mi clave</a> 
                 </div>
             </form>
         </div>
@@ -38,9 +38,8 @@
         <ul>
             <li><a href="/">Inicio</a></li>
             <li><a href="/acerca/">Acerca de</a></li>
-            <li><a href="#">Contáctanos</a></li>
             <li><a href="http://www.uusmb.unam.mx/">Página de la Unidad</a></li>
-            <li><a href="/manual/">manual de usuario</a></li>
+            <li><a href="{% static 'pdf/sistema.pdf' %}" download>Manual de Usuario</a></li>
         </ul>
     </div>
     
@@ -57,19 +56,11 @@
         // Código JavaScript para mostrar mensajes con SweetAlert2
         {% if messages %}
             {% for m in messages %}
-                {% if 'Se modificaron tus datos correctamente' in m.message %}
-                    Swal.fire({
-                        "title": "Perfil actualizado",
-                        "text": "{{ m }}",
-                        "icon": "success",
-                    });
-                {% else %}
-                    Swal.fire({
-                        "title": "Felicitaciones",
-                        "text": "{{ m }}",
-                        "icon": "success"
-                    });
-                {% endif %}
+                Swal.fire({
+                    "title": "Mensaje",
+                    "text": "{{ m }}",
+                    "icon": "error",
+                });
             {% endfor %}
         {% endif %}
     </script>

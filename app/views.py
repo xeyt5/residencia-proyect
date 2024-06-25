@@ -20,16 +20,9 @@ from io import BytesIO
 import datetime
 from collections import defaultdict
 from reportlab.lib import colors
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 
-# Create your views here.
-
-
-
-
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import permission_required, login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
 
 @permission_required('app.view_auth_permission')
 @login_required
@@ -38,12 +31,11 @@ def asignar_permisos(request):
 
     content_types = ContentType.objects.filter(
         app_label='app',
-        model__in=['location', 'marca', 'proveedor', 'item', 'registro']
+        model__in=['location', 'marca', 'proveedor', 'item', 'registro', 'receta']
     )
 
     permisos = Permission.objects.filter(content_type__in=content_types)
 
-    # Diccionario para traducir los nombres de los permisos
     permisos_traduccion = {
         'Can add item': 'Puede agregar ítem',
         'Can change item': 'Puede cambiar ítem',
@@ -64,7 +56,11 @@ def asignar_permisos(request):
         'Can add registro': 'Puede agregar registro',
         'Can change registro': 'Puede cambiar registro',
         'Can delete registro': 'Puede eliminar registro',
-        'Can view registro': 'Puede ver registro'
+        'Can view registro': 'Puede ver registro',
+        'Can add receta': 'Puede agregar receta',
+        'Can change receta': 'Puede cambiar receta',
+        'Can delete receta': 'Puede eliminar receta',
+        'Can view receta': 'Puede ver receta'
     }
 
     if request.method == 'POST':
@@ -141,6 +137,8 @@ def asignar_permisos(request):
         'selected_user': selected_user,
         'grupos': grupos
     })
+
+
 
 
 
@@ -291,12 +289,6 @@ def eliminar_proveedor(request, proveedor_id):
 
 
 
-
-
-
-
-
-
 permission_required('app.add_Proveedor')
 @login_required
 def proveedoresregistro(request):
@@ -351,10 +343,7 @@ def editar_proveedor(request, proveedor_id):
 
 
 
-    
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib import messages
+
 
 @login_required
 def perfil(request):
@@ -600,7 +589,22 @@ def salir(request):
     logout(request)
     return redirect('/')
 
-
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('home')  # Reemplaza 'home' con tu URL de destino
+            else:
+                messages.error(request, 'Este usuario no está activo.')
+        else:
+            messages.error(request, 'Usuario o contraseña incorrectos.')
+    
+    return render(request, 'login.html')
 
 
 @login_required
@@ -1136,6 +1140,7 @@ def eliminar_location(request, location_id):
 from django.utils import timezone
 import pytz
 
+permission_required('app.view_Recetas')
 @login_required
 def lista_usos_receta(request):
     usos_recetas = UsoReceta.objects.all().order_by('-fecha_uso')
@@ -1147,6 +1152,7 @@ def lista_usos_receta(request):
     }
     return render(request, 'lista_usos_receta.html', context)
 
+permission_required('app.view_Recetas')
 @login_required
 def generar_reporte(request):
     if request.method == 'POST':

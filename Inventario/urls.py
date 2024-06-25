@@ -24,6 +24,7 @@ from django.contrib.auth import views as auth_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name="index"),
+    path('login/', views.user_login, name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('salir/', views.salir, name="salir"),
     path('recuperar-contraseña/', views.recuperar_contraseña, name='recuperar_contraseña'),

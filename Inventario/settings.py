@@ -80,10 +80,15 @@ WSGI_APPLICATION = 'Inventario.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'sistema_inventarios',
+        'USER': 'uusmb1',
+        'PASSWORD': 'G3ZU6e9/',
+        'HOST': 'localhost',  # O la dirección IP de tu servidor PostgreSQL
+        'PORT': '5432',       # El puerto por defecto de PostgreSQL
     }
 }
+
 
 
 # Password validation
@@ -121,6 +126,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

@@ -32,7 +32,10 @@ p {
 }
 
 .video {
-    width: 60%;
+    width: 22%;
+    position: fixed;
+    margin-left: 12%;
+    margin-top: 19%;
 }
 
   

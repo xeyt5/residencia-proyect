@@ -33,7 +33,7 @@ def asignar_permisos(request):
 
     content_types = ContentType.objects.filter(
         app_label='app',
-        model__in=['location', 'marca', 'proveedor', 'item', 'registro', 'receta']
+        model__in=['location', 'marca', 'proveedor', 'item', 'registro', 'receta', 'type']
     )
 
     permisos = Permission.objects.filter(content_type__in=content_types)
@@ -62,7 +62,11 @@ def asignar_permisos(request):
         'Can add receta': 'Puede agregar receta',
         'Can change receta': 'Puede cambiar receta',
         'Can delete receta': 'Puede eliminar receta',
-        'Can view receta': 'Puede ver receta'
+        'Can view receta': 'Puede ver receta',
+        'Can add type': 'Puede agregar tipo',
+        'Can change type': 'Puede cambiar tipo',
+        'Can delete type': 'Puede eliminar tipo',
+        'Can view type': 'Puede ver tipo'
     }
 
     if request.method == 'POST':
@@ -139,6 +143,7 @@ def asignar_permisos(request):
         'selected_user': selected_user,
         'grupos': grupos
     })
+
 
 
 

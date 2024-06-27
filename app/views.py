@@ -1357,7 +1357,6 @@ def generar_reporte(request):
 
             usos_recetas = UsoReceta.objects.filter(fecha_uso__date__range=(fecha_inicio, fecha_fin)).order_by('-fecha_uso')
 
-            # Agrupar los usos de recetas por nombre
             receta_agrupada = defaultdict(lambda: {'cantidad': 0, 'cotizacion_total': 0})
             for uso in usos_recetas:
                 receta_agrupada[uso.receta.nombre]['cantidad'] += uso.cantidad
@@ -1379,11 +1378,11 @@ def generar_reporte(request):
 
             # Añadir la imagen más abajo y más estirada
             image_path = 'app/static/imagenes/uusmb.png'
-            p.drawImage(image_path, 0.5 * inch, 9.5 * inch, width=2 * inch, height=1 * inch)  # Ajustar la posición y tamaño
+            p.drawImage(image_path, 0.5 * inch, 9.5 * inch, width=2 * inch, height=1 * inch)  
 
             # Título del reporte
             p.setFont("Helvetica-Bold", 16)
-            p.drawCentredString(4.25 * inch, 10 * inch, "Reporte de Recetas")  # Ajustar la posición del título
+            p.drawCentredString(4.25 * inch, 10 * inch, "Reporte de Recetas")  
 
             # Subtítulo con fechas
             p.setFont("Helvetica", 12)

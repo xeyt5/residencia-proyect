@@ -61,11 +61,10 @@
                 <div class="ingrediente">
                     <select name="ingredientes" onchange="updateUnidadMedida(this)">
                         {% for registro in registros %}
-                        <option value="{{ registro.id }}" data-unidad="{{ registro.item.unidad_de_medida }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
+                        <option value="{{ registro.id }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
                         {% endfor %}
                     </select>
                     <input type="number" name="cantidades" placeholder="Cantidad" class="cantidad">
-                    <input name="unidad_medida" class="unidad-medida" readonly>
                 </div>
             </div>
             <button type="button" class='ingrediente' onclick="addIngrediente()">Agregar ingrediente</button><br><br>
@@ -111,11 +110,10 @@
             ingredienteDiv.innerHTML = `
                 <select name="ingredientes" onchange="updateUnidadMedida(this)">
                     {% for registro in registros %}
-                    <option value="{{ registro.id }}" data-unidad="{{ registro.item.unidad_de_medida }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
+                    <option value="{{ registro.id }}">{{ registro.item.nombre }} - Registro ID: {{ registro.id }} ({{ registro.no_referencia_inv }})</option>
                     {% endfor %}
                 </select>
                 <input type="number" name="cantidades" placeholder="Cantidad">
-                <input type="text" name="unidad_medida" class="unidad-medida" readonly>
             `;
             container.appendChild(ingredienteDiv);
         }

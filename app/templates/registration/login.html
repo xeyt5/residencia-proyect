@@ -39,7 +39,7 @@
             <li><a href="/">Inicio</a></li>
             <li><a href="/acerca/">Acerca de</a></li>
             <li><a href="http://www.uusmb.unam.mx/">Página de la Unidad</a></li>
-            <li><a href="{% static 'pdf/sistema.pdf' %}" download>Manual de Usuario</a></li>
+            <li><a href="{% url 'manual_usuario' %}">Manual de Usuario</a></li>
         </ul>
     </div>
     
@@ -60,6 +60,17 @@
                     "title": "Mensaje",
                     "text": "{{ m }}",
                     "icon": "error",
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: "{{ message.tags }}",
+                    text: "{{ message }}",
+                    icon: "{{ message.tags }}"
                 });
             {% endfor %}
         {% endif %}

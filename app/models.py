@@ -74,6 +74,8 @@ class Item(models.Model):
     marcas = models.ManyToManyField(Marca, related_name='items')
     proveedores = models.ManyToManyField(Proveedor, related_name='items')
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    pass
+
 
 
     def delete(self, *args, **kwargs):
@@ -86,6 +88,11 @@ class Item(models.Model):
 
 
 class Registro(models.Model):
+    STATUS_CHOICES = [
+        (1, 'Leyenda'),
+        (0, 'Descontinuado'),
+    ]
+        
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     cod_barras = models.CharField(max_length=100)
     no_referencia_inv = models.CharField(max_length=100)
@@ -99,7 +106,11 @@ class Registro(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2) 
 
     def __str__(self):
-        return self.cod_barras
+        return f'{self.item} - {self.get_status_display()}'
+
+    def get_status_display(self):
+        return dict(self.STATUS_CHOICES).get(self.status, 'Unknown')
+
 
     def save(self, *args, **kwargs):
         if self.pk is not None:
@@ -144,6 +155,9 @@ class RecetaReceta(models.Model):
     
     def __str__(self):
         return f'{self.cantidad} de {self.subreceta} en {self.receta}'
+
+
+
 
 class UsoReceta(models.Model):
     receta = models.ForeignKey(Receta, on_delete=models.CASCADE)
@@ -203,18 +217,6 @@ def registrar_eliminacion_item(sender, instance, **kwargs):
         descripcion=descripcion_personalizada
     )
         
-@receiver(pre_save, sender=Item)
-def registrar_actualizacion_item(sender, instance, **kwargs):
-    if instance.pk:  # Verifica si el objeto ya existe en la base de datos (es una actualización)
-        old_instance = Item.objects.get(pk=instance.pk)
-        if instance.nombre != old_instance.nombre or instance.contenido != old_instance.contenido or instance.unidad_de_medida != old_instance.unidad_de_medida:
-            Bitacora.objects.create(
-                accion='Actualizar',
-                usuario=instance.usuario,
-                modelo='Item',
-                instancia_id=instance.id,
-                descripcion=f'Se actualizó el item con ID {instance.id} y nombre {instance.nombre}'
-            )
             
          
 @receiver(post_save, sender=Marca)
@@ -284,18 +286,10 @@ def registrar_cambio_registro(sender, instance, created, **kwargs):
             instancia_id=instance.id,
             descripcion=f'Se {accion.lower()} el Registro con ID {instance.id} y con codigo de barras {instance.cod_barras}'
         )
-    else:
-        Bitacora.objects.create(
-            accion=accion,
-            usuario=instance.usuario,
-            modelo='Registro',
-            instancia_id=instance.id,
-            descripcion=f'Se {accion.lower()} el registro {instance.id} y con codigo de barras {instance.cod_barras}'
-        )
 
 @receiver(post_save, sender=Type)
 def registrar_cambio_type(sender, instance, created, **kwargs):
-    accion = 'Crear' if created else 'Actualizar'
+    accion = 'Crear'
     if created:
         Bitacora.objects.create(
             accion=accion,
@@ -304,14 +298,7 @@ def registrar_cambio_type(sender, instance, created, **kwargs):
             instancia_id=instance.id,
             descripcion=f'Se {accion.lower()} el tipo con ID {instance.id} y nombre {instance.nombre}'
         )
-    else:
-        Bitacora.objects.create(
-            accion=accion,
-            usuario=instance.usuario,
-            modelo='Type',
-            instancia_id=instance.id,
-            descripcion=f'Se {accion.lower()} el tipo con ID {instance.id} y nombre {instance.nombre}'
-        )
+
 
 @receiver(post_delete, sender=Type)
 def registrar_eliminacion_type(sender, instance, **kwargs):

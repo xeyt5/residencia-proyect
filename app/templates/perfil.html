@@ -12,14 +12,14 @@
             <ul>
                 <li><a href="/perfil/">Perfil</a></li>
                 <li><a href="/">Inicio</a></li>
-                {%if perms.app.view_registro%}
+                {% if perms.app.view_registro %}
                 <li><a href="/inventario/">Inventario</a></li>
-                {%endif%}
+                {% endif %}
                 {% if perms.app.view_receta %}
                 <li><a href="/recetas/">Recetas</a></li>
                 {% endif %}
                 {% if perms.app.view_item %}
-                <li><a href="{% url 'listar_items' %}">Items</a></li>  
+                <li><a href="{% url 'listar_items' %}">Items</a></li>
                 {% endif %}
                 {% if perms.app.view_marca %}
                 <li><a href="/marca/">Marca</a></li>
@@ -30,8 +30,8 @@
                 {% if perms.app.view_type %}
                 <li><a href="/tipos/">Tipos</a></li>
                 {% endif %}
-                {% if perms.app.view_locatios %}
-                <li><a href="/listar-locations/">Equipos</a></li>
+                {% if perms.app.view_location %}
+                <li><a href="/listar-locations/">Ubicaciones</a></li>
                 {% endif %}
                 {% if perms.app.view_bitacora %}
                 <li><a href="/bitacora/">Bitácora</a></li>
@@ -51,6 +51,16 @@
             <br><br><br><br>
             <h1>BIENVENIDO {{ request.user.username.upper }}</h1>
             <br><br>
+
+            <!-- Mostrar mensajes -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 {% for field in form %}

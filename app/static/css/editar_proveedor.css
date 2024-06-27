@@ -134,7 +134,7 @@ input[type="text"], input[type="email"], textarea, input[type="url"], #id_cantid
     height: 80px;
 }
 
-button[type="submit"] {
+button[type="submit"], #submitBtn, .reigstroM {
     background-color: #4CAF50;
     color: #fff;
     padding: 10px 20px;
@@ -161,4 +161,6 @@ button[type="submit"]:hover {
 strong, small{
   display: none;
 }
+
+
 

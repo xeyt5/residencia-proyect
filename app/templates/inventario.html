@@ -32,8 +32,8 @@
                 {% if perms.app.view_type %}
                 <li><a href="/tipos/">Tipos</a></li>
                 {% endif %}
-                {% if perms.app.view_locatios %}
-                <li><a href="/listar-locations/">Equipos</a></li>
+                {% if perms.app.view_location %}
+                <li><a href="/listar-locations/">Ubicaciones</a></li>
                 {% endif %}
                 {% if perms.app.view_bitacora %}
                 <li><a href="/bitacora/">Bitácora</a></li>
@@ -166,11 +166,13 @@
                             <input type="text" id="status-filter" placeholder="Status" class="filter-input">
                         </form>
                     </th>
+                    {% if perms.app.view_precio %}
                     <th>
                         <form class="filter-form">
                             <input type="text" id="precio-filter" placeholder="Precio" class="filter-input">
                         </form>
                     </th>
+                    {% endif %}
                 </tr>
                 <tr>
                     <th></th>
@@ -192,7 +194,9 @@
                     <th>Equipo</th>
                     <th>Nivel</th>
                     <th>Status</th>
+                    {% if perms.app.view_precio %}
                     <th>Precio</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -244,8 +248,10 @@
                             {{ location.nivel }}
                         {% endfor %}
                     </td>
-                    <td>{{ registro.status }}</td>
-                    <td>${{ registro.precio}}</td>
+                    <td>{{ registro.get_status_display }}</td>
+                    {% if perms.app.view_precio %}
+                    <td>${{ registro.precio }}</td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
@@ -461,6 +467,35 @@
         
         
     </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var rows = document.querySelectorAll("tbody tr");
+    
+            rows.forEach(function(row) {
+                var cantidadCell = row.querySelector("td:nth-child(13)"); 
+    
+                if (cantidadCell) {
+                    var cantidad = parseInt(cantidadCell.textContent.trim(), 10);
+    
+                    if (cantidad === 0) {
+                        row.remove(); 
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: "{{ message.tags }}",
+                    text: "{{ message }}",
+                    icon: "{{ message.tags }}"
+                });
+            {% endfor %}
+        {% endif %}
+    </script>
+    
     
 </body>
 </html>

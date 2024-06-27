@@ -33,8 +33,8 @@
                 {% if perms.app.view_type %}
                 <li><a href="/tipos/">Tipos</a></li>
                 {% endif %}
-                {% if perms.app.view_locatios %}
-                <li><a href="/listar-locations/">Equipos</a></li>
+                {% if perms.app.view_location %}
+                <li><a href="/listar-locations/">Ubicaciones</a></li>
                 {% endif %}
                 {% if perms.app.view_bitacora %}
                 <li><a href="/bitacora/">Bitácora</a></li>
@@ -369,6 +369,17 @@ document.querySelectorAll('.usar-receta').forEach(button => {
         function editarReceta(recetaId) {
             window.location.href = `/editar-receta/${recetaId}/`;
         }
+    </script>
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: "{{ message.tags }}",
+                    text: "{{ message }}",
+                    icon: "{{ message.tags }}"
+                });
+            {% endfor %}
+        {% endif %}
     </script>
 </body>
 </html>

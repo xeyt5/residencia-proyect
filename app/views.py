@@ -22,6 +22,8 @@ from collections import defaultdict
 from reportlab.lib import colors
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
+from django.utils import timezone
+import pytz
 
 
 @permission_required('app.view_auth_permission')
@@ -182,7 +184,20 @@ def index(request):
 @login_required
 @permission_required('app.view_bitacora')
 def bitacora(request):
+    # Diccionario de traducción
+    traduccion_modelos = {
+        'Item': 'Producto',
+        'Location': 'Ubicación',
+        'Type': 'Tipo'
+    }
+    
     registros = Bitacora.objects.all().order_by('-fecha_hora')
+    
+    # Traducir los nombres de los modelos en los registros
+    for registro in registros:
+        if registro.modelo in traduccion_modelos:
+            registro.modelo = traduccion_modelos[registro.modelo]
+    
     return render(request, 'bitacora.html', {'registros': registros})
 
 
@@ -226,16 +241,24 @@ def marcaregistro(request):
 
 
 
-@permission_required('app.change_registro')
 @login_required
+@permission_required('app.change_marca')
 def editar_marca(request, marca_id):
     marca = get_object_or_404(Marca, id=marca_id)
+    
     if request.method == 'POST':
         form = marcaform(request.POST, instance=marca)
         if form.is_valid():
             marca = form.save(commit=False)
             marca.usuario = request.user
             marca.save()
+
+            # Verificar los campos modificados en el formulario
+            cambios_realizados = []
+            if 'nombre' in form.changed_data:
+                cambios_realizados.append(f"se editó el nombre")
+            if 'descripcion' in form.changed_data:
+                cambios_realizados.append(f"se editó la descripción")
 
             descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
             if not descripcion_personalizada:
@@ -245,21 +268,25 @@ def editar_marca(request, marca_id):
                     usuario=request.user,
                     modelo='Marca',
                     instancia_id=marca.id,
-                    descripcion=f''
+                    descripcion=', '.join(cambios_realizados)
                 )
             else:
+                # Construir el mensaje completo para la bitácora
+                mensaje_bitacora = f"Se actualizó la marca con ID: {marca.id} ({', '.join(cambios_realizados)}) - {descripcion_personalizada}"
+
                 Bitacora.objects.create(
                     accion='Actualizar',
                     usuario=request.user,
                     modelo='Marca',
                     instancia_id=marca.id,
-                    descripcion=descripcion_personalizada
+                    descripcion=mensaje_bitacora
                 )
                 messages.success(request, 'Se editó la marca correctamente con la descripción personalizada.')
 
-            return redirect('marca')
+            return redirect('marca')  # Ajusta la redirección según tu configuración de URL
     else:
         form = marcaform(instance=marca)
+    
     return render(request, 'editar_marca.html', {'form': form})
     
     
@@ -305,16 +332,30 @@ def proveedoresregistro(request):
     return render(request, 'proveedoresr.html', {'form': form})
 
 
-@permission_required('app.change_Proveedor')
 @login_required
+@permission_required('app.change_proveedor')
 def editar_proveedor(request, proveedor_id):
     proveedor = get_object_or_404(Proveedor, id=proveedor_id)
+    
     if request.method == 'POST':
         form = proveedorForm(request.POST, instance=proveedor)
         if form.is_valid():
             proveedor = form.save(commit=False)
             proveedor.usuario = request.user
             proveedor.save()
+
+            # Verificar los campos modificados en el formulario
+            cambios_realizados = []
+            if 'nombre' in form.changed_data:
+                cambios_realizados.append(f"se editó el nombre")
+            if 'descripcion' in form.changed_data:
+                cambios_realizados.append(f"se editó la descripción")
+            if 'telefono' in form.changed_data:
+                cambios_realizados.append(f"se editó el teléfono")
+            if 'correo' in form.changed_data:
+                cambios_realizados.append(f"se editó el correo")
+            if 'url' in form.changed_data:
+                cambios_realizados.append(f"se editó el URL")
 
             descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
             if not descripcion_personalizada:
@@ -324,21 +365,25 @@ def editar_proveedor(request, proveedor_id):
                     usuario=request.user,
                     modelo='Proveedor',
                     instancia_id=proveedor.id,
-                    descripcion=f''
+                    descripcion=', '.join(cambios_realizados)
                 )
             else:
+                # Construir el mensaje completo para la bitácora
+                mensaje_bitacora = f"Se actualizó el proveedor con ID: {proveedor.id} ({', '.join(cambios_realizados)}) - {descripcion_personalizada}"
+
                 Bitacora.objects.create(
                     accion='Actualizar',
                     usuario=request.user,
                     modelo='Proveedor',
                     instancia_id=proveedor.id,
-                    descripcion=descripcion_personalizada
+                    descripcion=mensaje_bitacora
                 )
                 messages.success(request, 'Se modificó correctamente el proveedor con la descripción personalizada.')
 
             return redirect('/proveedores/')
     else:
         form = proveedorForm(instance=proveedor)
+    
     return render(request, 'editar_proveedor.html', {'form': form})
 
 
@@ -353,10 +398,6 @@ def perfil(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Se modificaron tus datos")
-            user = authenticate(request, username=user.username)
-            if user is not None:
-                login(request, user)
-                request.session.save()
             return redirect('perfil')
     else:
         form = CustomUserChangeForm(instance=user)
@@ -401,63 +442,99 @@ def inventario(request):
     })
 
 
-@permission_required('app.change_registro')
+from datetime import datetime as dt
 @login_required
+@permission_required('app.change_registro')
 def editar_registro(request, registro_id):
     registro = get_object_or_404(Registro, pk=registro_id)
     item = registro.item
-    
+
     types = Type.objects.all()
     locations = Location.objects.all()
     marcas = Marca.objects.all()
     items = Item.objects.all()
-    
+
     if request.method == 'POST':
+        # Inicializa lista de cambios realizados
+        cambios_realizados = []
+
         # Procesamiento del formulario cuando se envía por POST
-        
-        registro.cod_barras = request.POST.get('cod_barras')
-        registro.no_referencia_inv = request.POST.get('no_referencia_inv')
-        
+        cod_barras = request.POST.get('cod_barras')
+        if cod_barras != registro.cod_barras:
+            cambios_realizados.append("código de barras")
+            registro.cod_barras = cod_barras
+
+        no_referencia_inv = request.POST.get('no_referencia_inv')
+        if no_referencia_inv != registro.no_referencia_inv:
+            cambios_realizados.append("número de referencia")
+            registro.no_referencia_inv = no_referencia_inv
+
         fecha_caducidad = request.POST.get('fecha_caducidad')
         if fecha_caducidad:
-            registro.fecha_caducidad = datetime.strptime(fecha_caducidad, '%Y-%m-%d').date()
-            
+            nueva_fecha_caducidad = dt.strptime(fecha_caducidad, '%Y-%m-%d').date()
+            if nueva_fecha_caducidad != registro.fecha_caducidad:
+                cambios_realizados.append("fecha de caducidad")
+                registro.fecha_caducidad = nueva_fecha_caducidad
+
         fecha_recepcion = request.POST.get('fecha_recepcion')
         if fecha_recepcion:
-            registro.fecha_recepcion = datetime.strptime(fecha_recepcion, '%Y-%m-%d').date()
-            
-        registro.lote = request.POST.get('lote')
+            nueva_fecha_recepcion = dt.strptime(fecha_recepcion, '%Y-%m-%d').date()
+            if nueva_fecha_recepcion != registro.fecha_recepcion:
+                cambios_realizados.append("fecha de recepción")
+                registro.fecha_recepcion = nueva_fecha_recepcion
+
+        lote = request.POST.get('lote')
+        if lote != registro.lote:
+            cambios_realizados.append("lote")
+            registro.lote = lote
+
         nueva_cantidad = int(request.POST.get('cantidad'))
-        diferencia_cantidad = nueva_cantidad - registro.cantidad
-        
-        registro.cantidad = nueva_cantidad
-        registro.cod = request.POST.get('cod')
-        registro.status = request.POST.get('status')
-        registro.precio = request.POST.get('precio')
-        
-        # Actualizar marca, equipo y nivel
-        marca_id = request.POST.get('marca')
-        ubicacion_id = request.POST.get('ubicacion')
-        nivel = request.POST.get('nivel')
-        
-        if marca_id:
-            registro.marca = get_object_or_404(Marca, pk=marca_id)
-        
-        if ubicacion_id:
-            registro.equipo = get_object_or_404(Location, pk=ubicacion_id)
-        
-        if nivel:
-            registro.nivel = nivel
-        
+        if nueva_cantidad != registro.cantidad:
+            cambios_realizados.append("cantidad")
+            diferencia_cantidad = nueva_cantidad - registro.cantidad
+            registro.cantidad = nueva_cantidad
+        else:
+            diferencia_cantidad = 0
+
+        cod = request.POST.get('cod')
+        if cod != registro.cod:
+            cambios_realizados.append("código")
+            registro.cod = cod
+
+        status = request.POST.get('status')
+        if status != str(registro.status):  # Convert to string for comparison
+            cambios_realizados.append("estado")
+            registro.status = int(status)  # Convert back to integer for saving
+
+        precio = request.POST.get('precio')
+        if precio != str(registro.precio):  # Assuming precio is a decimal field
+            cambios_realizados.append("precio")
+            registro.precio = precio
+
         registro.save()
-        
-        item.stock += diferencia_cantidad
-        item.save()
-        
+
+        # Capturar la descripción personalizada
+        descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+
+        # Construir el mensaje para la bitácora
+        mensaje_bitacora = f"Se actualizó el registro con id: {registro.id}"
+        if cambios_realizados:
+            mensaje_bitacora += f" (campos modificados: {', '.join(cambios_realizados)})"
+        if descripcion_personalizada:
+            mensaje_bitacora += f" - {descripcion_personalizada}"
+
+        # Crear entrada en la bitácora
+        Bitacora.objects.create(
+            accion='Actualizar',
+            usuario=request.user,
+            modelo='Registro',
+            instancia_id=registro.id,
+            descripcion=mensaje_bitacora
+        )
+
         messages.success(request, 'Se modificó correctamente el registro')
         return redirect('/inventario/')  # Redireccionar a donde sea necesario
-    
-    # Si el método HTTP es GET, incluir el precio actual en el contexto
+
     return render(request, 'editar_registro.html', {
         'registro': registro,
         'item': item,
@@ -465,7 +542,7 @@ def editar_registro(request, registro_id):
         'locations': locations,
         'marcas': marcas,
         'items': items,
-        'precio_actual': registro.precio  # Incluir el precio actual del registro
+        'precio_actual': registro.precio if registro.precio is not None else '',  # Incluir el precio actual del registro
     })
 
     
@@ -633,8 +710,8 @@ def crear_item(request):
 
 
 
-@permission_required('app.change_item')
 @login_required
+@permission_required('app.change_item')
 def editar_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
     types = Type.objects.all()
@@ -649,6 +726,28 @@ def editar_item(request, item_id):
             item.usuario = request.user
             item.save()
             form.save_m2m()  # Guardar relaciones Many-to-Many
+
+            # Verificar los campos modificados en el formulario
+            cambios_realizados = []
+            if 'nombre' in form.changed_data:
+                cambios_realizados.append(f"se cambió el nombre")
+            if 'contenido' in form.changed_data:
+                cambios_realizados.append(f"se cambió el contenido")
+            if 'unidad_de_medida' in form.changed_data:
+                cambios_realizados.append(f"se cambió la unidad de medida")
+            if 'stock' in form.changed_data:
+                cambios_realizados.append(f"se cambió el stock")
+            if 'stock_minimo' in form.changed_data:
+                cambios_realizados.append(f"se cambió el stock mínimo")
+            if 'types' in form.changed_data:
+                cambios_realizados.append(f"se cambió el tipo")
+            if 'locations' in form.changed_data:
+                cambios_realizados.append(f"se cambió la ubicación")
+            if 'marcas' in form.changed_data:
+                cambios_realizados.append(f"se cambió la marca")
+            if 'proveedores' in form.changed_data:
+                cambios_realizados.append(f"se cambió el proveedor")
+
             descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
             if not descripcion_personalizada:
                 messages.warning(request, 'No se proporcionó ninguna descripción personalizada.')
@@ -657,21 +756,24 @@ def editar_item(request, item_id):
                     usuario=request.user,
                     modelo='Item',
                     instancia_id=item.id,
-                    descripcion=''
+                    descripcion=', '.join(cambios_realizados)
                 )
             else:
+                # Construir el mensaje completo para la bitácora
+                mensaje_bitacora = f"Se actualizó el item con ID: {item.id} ({', '.join(cambios_realizados)}) - {descripcion_personalizada}"
+
                 Bitacora.objects.create(
                     accion='Actualizar',
                     usuario=request.user,
                     modelo='Item',
                     instancia_id=item.id,
-                    descripcion=descripcion_personalizada
+                    descripcion=mensaje_bitacora
                 )
                 messages.success(request, 'Se modificó correctamente el item con la descripción personalizada.')
 
-            return redirect('listar_items')
+            return redirect('listar_items')  # Ajusta la redirección según tu configuración de URL
         else:
-            print(form.errors)  # Print form errors to debug
+            print(form.errors)  # Imprimir errores del formulario para debug
     else:
         form = ItemForm(instance=item)
 
@@ -697,19 +799,37 @@ def listar_items(request):
 @login_required
 def eliminar_item(request, item_id):
     item = get_object_or_404(Item, id=item_id)
+    
     if request.method == 'POST':
         usuario = request.user
         descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
 
-        # Actualizar el stock del Item
+        # Actualizar el stock del Item (ejemplo asumiendo que hay un campo 'stock' en el modelo Item)
         for registro in item.registro_set.all():
             item.stock -= registro.cantidad
         item.save()
 
-        # Llama a delete y pasa los argumentos adicionales
-        item.delete(usuario=usuario, descripcion_personalizada=descripcion_personalizada)
+        # Construir el mensaje para la bitácora
+        mensaje_bitacora = f"Se eliminó el ítem con id: {item.id}"
+        if descripcion_personalizada:
+            mensaje_bitacora += f" - {descripcion_personalizada}"
+
+        # Crear entrada en la bitácora
+        Bitacora.objects.create(
+            accion='Eliminar',
+            usuario=usuario,
+            modelo='Item',
+            instancia_id=item.id,
+            descripcion=mensaje_bitacora
+        )
+
+        # Eliminar el ítem
+        item.delete()
+
+        messages.success(request, 'Se eliminó correctamente el ítem.')
 
         return redirect('listar_items')
+
     return render(request, 'eliminar_item.html', {'item': item})
 
 
@@ -968,7 +1088,7 @@ def eliminar_receta(request, receta_id):
     else:
         return JsonResponse({'error': 'Método no permitido'}, status=405)
     
-    
+
 def resumen_receta(request, receta_id):
     try:
         receta = Receta.objects.get(id=receta_id)
@@ -1002,8 +1122,8 @@ def resumen_receta(request, receta_id):
     return JsonResponse(data)
 
 
-permission_required('app.view_type')
 @login_required
+@permission_required('app.view_type', raise_exception=True)
 def type(request):
     types = Type.objects.all()
     return render(request, 'type.html', {'types': types})
@@ -1040,13 +1160,44 @@ def crear_type(request):
 @permission_required('app.change_type', raise_exception=True)
 def editar_type(request, id):
     type_obj = get_object_or_404(Type, id=id)
+    
     if request.method == 'POST':
         form = TypeForm(request.POST, instance=type_obj)
         if form.is_valid():
-            form.save()
-            return redirect('type')
+            type_instance = form.save(commit=False)
+            type_instance.usuario = request.user
+            type_instance.save()
+
+            # Verificar los campos modificados en el formulario
+            cambios_realizados = []
+            if 'nombre' in form.changed_data:
+                cambios_realizados.append("nombre")
+            if 'descripcion' in form.changed_data:
+                cambios_realizados.append("descripción")
+
+            descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+            descripcion_bitacora = ', '.join([f"se cambió el {campo}" for campo in cambios_realizados])
+
+            if descripcion_personalizada:
+                descripcion_bitacora += f" - {descripcion_personalizada}"
+                messages.success(request, 'Se editó el tipo correctamente con la descripción personalizada.')
+            else:
+                messages.warning(request, 'No se proporcionó ninguna descripción personalizada.')
+                messages.success(request, 'Se editó el tipo correctamente, aunque no se proporcionó ninguna descripción personalizada.')
+
+            # Crear entrada en la bitácora
+            Bitacora.objects.create(
+                accion='Actualizar',
+                usuario=request.user,
+                modelo='Type',
+                instancia_id=type_instance.id,
+                descripcion=descripcion_bitacora
+            )
+
+            return redirect('type')  # Ajusta la redirección según tu configuración de URL
     else:
         form = TypeForm(instance=type_obj)
+    
     return render(request, 'editar_type.html', {'form': form})
 
 
@@ -1076,10 +1227,11 @@ def crear_location(request):
     return render(request, 'crear_locations.html', {'form': form})
 
 
-@permission_required('app.change_location')
 @login_required
+@permission_required('app.change_location', raise_exception=True)
 def editar_location(request, location_id):
     location = get_object_or_404(Location, id=location_id)
+    
     if request.method == 'POST':
         form = LocationForm(request.POST, instance=location)
         if form.is_valid():
@@ -1087,58 +1239,89 @@ def editar_location(request, location_id):
             location.usuario = request.user
             location.save()
 
+            # Obtener la descripción personalizada del POST
             descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
+
+            cambios_realizados = []
+
+            # Verificar los campos modificados en el formulario
+            if 'nivel' in form.changed_data:
+                cambios_realizados.append(f"se cambió el nivel del equipo con id: {location.id}")
+            if 'descripcion' in form.changed_data:
+                cambios_realizados.append(f"se cambió la descripción del equipo con id: {location.id}")
+            if 'equipo' in form.changed_data:
+                cambios_realizados.append(f"se cambió el equipo con id: {location.id}")
+
+            # Construir la descripción para la bitácora
+            if not cambios_realizados:
+                mensajes_bitacora = 'No se realizaron cambios en la ubicación.'
+            else:
+                mensajes_bitacora = ', '.join(cambios_realizados)
+
+            # Crear la entrada en la bitácora
             if not descripcion_personalizada:
-                messages.warning(request, 'No se proporcionó ninguna descripción personalizada.')
                 Bitacora.objects.create(
                     accion='Actualizar',
                     usuario=request.user,
                     modelo='Location',
                     instancia_id=location.id,
-                    descripcion=f''
+                    descripcion=f"{mensajes_bitacora}"
                 )
+                messages.warning(request, 'No se proporcionó ninguna descripción personalizada.')
             else:
                 Bitacora.objects.create(
                     accion='Actualizar',
                     usuario=request.user,
                     modelo='Location',
                     instancia_id=location.id,
-                    descripcion=descripcion_personalizada
+                    descripcion=f"{mensajes_bitacora} - {descripcion_personalizada}"
                 )
                 messages.success(request, 'Se modificó correctamente la ubicación con la descripción personalizada.')
 
             return redirect('listar_locations')
     else:
         form = LocationForm(instance=location)
+    
     return render(request, 'editar_locations.html', {'form': form, 'location': location})
+
+
 
 @login_required
 @permission_required('app.delete_location', raise_exception=True)
 def eliminar_location(request, location_id):
     location = get_object_or_404(Location, id=location_id)
+    
     if request.method == 'POST':
         usuario = request.user
         descripcion_personalizada = request.POST.get('descripcion_personalizada', '')
 
+        # Construir el mensaje para la bitácora
+        mensaje_bitacora = f"Se eliminó la ubicación con id: {location.id}"
+        if descripcion_personalizada:
+            mensaje_bitacora += f" - {descripcion_personalizada}"
 
+        # Crear entrada en la bitácora
         Bitacora.objects.create(
             accion='Eliminar',
             usuario=usuario,
             modelo='Location',
             instancia_id=location.id,
-            descripcion=descripcion_personalizada
+            descripcion=mensaje_bitacora
         )
 
+        # Eliminar la ubicación
         location.delete()
 
+        messages.success(request, 'Se eliminó correctamente la ubicación.')
+
         return redirect('listar_locations')
+
     return render(request, 'eliminar_location.html', {'location': location})
 
 
 
 
-from django.utils import timezone
-import pytz
+
 
 permission_required('app.view_Recetas')
 @login_required
@@ -1152,7 +1335,11 @@ def lista_usos_receta(request):
     }
     return render(request, 'lista_usos_receta.html', context)
 
-permission_required('app.view_Recetas')
+
+
+
+
+@permission_required('app.view_recetas')
 @login_required
 def generar_reporte(request):
     if request.method == 'POST':
@@ -1174,6 +1361,16 @@ def generar_reporte(request):
             # Crear el PDF
             buffer = BytesIO()
             p = canvas.Canvas(buffer, pagesize=letter)
+
+            # Función para agregar una nueva página y el encabezado de la tabla
+            def agregar_pagina():
+                p.showPage()
+                p.setFont("Helvetica-Bold", 12)
+                p.drawString(0.5 * inch, 9.5 * inch, "Receta")
+                p.drawString(2 * inch, 9.5 * inch, "Cantidad")
+                p.drawString(3.5 * inch, 9.5 * inch, "Cotización Total")
+                p.setFont("Helvetica", 10)
+                return 9.25 * inch
 
             # Añadir la imagen más abajo y más estirada
             image_path = 'app/static/imagenes/uusmb.png'
@@ -1206,7 +1403,6 @@ def generar_reporte(request):
             total_cantidad = 0
             total_costo = 0
 
-            # Contenido de la tabla
             p.setFont("Helvetica", 10)
             for nombre_receta, datos in receta_agrupada.items():
                 p.drawString(0.5 * inch, y, nombre_receta)
@@ -1219,15 +1415,11 @@ def generar_reporte(request):
                 y -= 0.25 * inch
 
                 if y < 1 * inch:
-                    p.showPage()
-                    p.setFont("Helvetica-Bold", 12)
-                    p.drawString(0.5 * inch, 9.5 * inch, "Receta")
-                    p.drawString(2 * inch, 9.5 * inch, "Cantidad")
-                    p.drawString(3.5 * inch, 9.5 * inch, "Cotización Total")
-                    p.setFont("Helvetica", 10)
-                    y = 9.25 * inch
+                    y = agregar_pagina()
 
-            # Totales
+            if y < 1.5 * inch:
+                y = agregar_pagina() - 0.25 * inch
+
             y -= 0.25 * inch
             p.setFont("Helvetica-Bold", 12)
             p.drawString(1 * inch, y, f"Total Cantidad: {total_cantidad}")
@@ -1353,7 +1545,8 @@ def crear_grupo(request):
     return render(request, 'crear_grupo.html', {'permisos': permisos})
 
 
-
+def manual_usuario(request):
+    return render(request, 'manual.html')
 
 
 

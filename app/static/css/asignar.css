@@ -127,13 +127,14 @@ body{
   li.success{
     display: none;
   }
+
   
   button:hover {
     background-color: #00ff0d;
     color: #000000;
   }
 
-  select#username{
+  select#username, #group_select{
     height: 40px;
     border-radius: 5px;
     text-align: center;

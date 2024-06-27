@@ -31,8 +31,8 @@
             {% if perms.app.view_type %}
             <li><a href="/tipos/">Tipos</a></li>
             {% endif %}
-            {% if perms.app.view_locatios %}
-            <li><a href="/listar-locations/">Equipos</a></li>
+            {% if perms.app.view_location %}
+            <li><a href="/listar-locations/">Ubicaciones</a></li>
             {% endif %}
             {% if perms.app.view_bitacora %}
             <li><a href="/bitacora/">Bitácora</a></li>
@@ -106,7 +106,7 @@
             <div class="button-container">
                 <button type="submit" class="save-button">Guardar</button>
             </div>
-            <br><br><br><br>
+            <br>
         </form>
         
         <form id="delete-user-form" method="post" action="{% url 'asignar_permisos' %}">
@@ -115,7 +115,7 @@
             <input type="hidden" name="delete_user" value="true">
             <button type="button" class="delete-button" onclick="confirmDelete()">Eliminar Usuario</button>
         </form>
-
+        <br>
         <form id="make-superuser-form" method="post" action="{% url 'asignar_permisos' %}">
             {% csrf_token %}
             <input type="hidden" name="username" value="{{ selected_username }}">

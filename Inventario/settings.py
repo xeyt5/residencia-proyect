@@ -84,8 +84,8 @@ DATABASES = {
         'NAME': 'sistema_inventarios',
         'USER': 'uusmb1',
         'PASSWORD': 'G3ZU6e9/',
-        'HOST': 'localhost',  # O la dirección IP de tu servidor PostgreSQL
-        'PORT': '5432',       # El puerto por defecto de PostgreSQL
+        'HOST': 'localhost',  
+        'PORT': '5432',       
     }
 }
 

@@ -30,8 +30,8 @@
             {% if perms.app.view_type %}
             <li><a href="/tipos/">Tipos</a></li>
             {% endif %}
-            {% if perms.app.view_locatios %}
-            <li><a href="/listar-locations/">Equipos</a></li>
+            {% if perms.app.view_location %}
+            <li><a href="/listar-locations/">Ubicaciones</a></li>
             {% endif %}
             {% if perms.app.view_bitacora %}
             <li><a href="/bitacora/">Bitácora</a></li>
@@ -92,7 +92,10 @@
             <label for="cod">Cod:</label><br>
             <input type="text" id="cod" name="cod"><br>
             <label for="status">Status:</label><br>
-            <input type="text" id="status" name="status"><br>
+            <select id="status" name="status">
+                <option value="0">Leyenda</option>
+                <option value="1">Descontinuado</option>
+            </select><br>
             <label for="precio">Precio:</label><br>
             <input type="text" id="precio" name="precio"><br>
         </div>

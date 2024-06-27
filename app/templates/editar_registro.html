@@ -31,8 +31,8 @@
             {% if perms.app.view_type %}
             <li><a href="/tipos/">Tipos</a></li>
             {% endif %}
-            {% if perms.app.view_locatios %}
-            <li><a href="/listar-locations/">Equipos</a></li>
+            {% if perms.app.view_location %}
+            <li><a href="/listar-locations/">Ubicaciones</a></li>
             {% endif %}
             {% if perms.app.view_bitacora %}
             <li><a href="/bitacora/">Bitácora</a></li>
@@ -100,9 +100,13 @@
                     <label for="cod">Código:</label><br>
                     <input type="text" id="cod" name="cod" value="{{ registro.cod }}"><br>
                     <label for="status">Status:</label><br>
-                    <input type="text" id="status" name="status" value="{{ registro.status }}"><br>
+                    <select id="status" name="status">
+                        <option value="0" {% if registro.status == 0 %} selected {% endif %}>Leyenda</option>
+                        <option value="1" {% if registro.status == 1 %} selected {% endif %}>Descontinuado</option>
+                    </select><br>
                     <label for="precio">Precio:</label><br>
-                    <input type="number" id="precio" name="precio" value="{{ precio_actual }}"><br>                    
+                    <input type="number" id="precio" name="precio" value="{{ precio_actual }}"> 
+                    <input type="hidden" id="descripcion_personalizada" name="descripcion_personalizada">                 
                 </div>
                 <button type="button" id="submitBtn">Guardar</button>
             </form>
@@ -149,22 +153,33 @@
     </script>
 
     <script>
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            Swal.fire({
-                title: '¿Seguro que quieres editar este registro?',
-                text: "Asegúrate de que los datos son correctos.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Sí, editar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('editForm').submit();
-                }
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('submitBtn').addEventListener('click', function() {
+                Swal.fire({
+                    title: '¿Seguro que quieres editar este registro?',
+                    text: "Asegúrate de que los datos son correctos.",
+                    input: 'textarea',
+                    inputLabel: 'Ingresa la descripción personalizada',
+                    inputPlaceholder: 'Escribe tu descripción aquí...',
+                    inputAttributes: {
+                        'aria-label': 'Escribe tu descripción aquí'
+                    },
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Guardar Cambios'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Asignar el valor del campo de descripción personalizada al input oculto
+                        document.getElementById('descripcion_personalizada').value = result.value;
+                        // Enviar el formulario
+                        document.getElementById('editForm').submit();
+                    }
+                });
             });
         });
     </script>
+    
     <script>
         document.getElementById('editForm').addEventListener('submit', function(event) {
             var precioInput = document.getElementById('precio');

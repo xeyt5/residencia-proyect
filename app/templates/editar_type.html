@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <title>Editar Tipo</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/editar_proveedor.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Agrega SweetAlert -->
 </head>
 <body>
     <div class="container">
@@ -31,8 +32,8 @@
                 {% if perms.app.view_type %}
                 <li><a href="/tipos/">Tipos</a></li>
                 {% endif %}
-                {% if perms.app.view_locatios %}
-                <li><a href="/listar-locations/">Equipos</a></li>
+                {% if perms.app.view_location %}
+                <li><a href="/listar-locations/">Ubicaciones</a></li>
                 {% endif %}
                 {% if perms.app.view_bitacora %}
                 <li><a href="/bitacora/">Bitácora</a></li>
@@ -51,11 +52,36 @@
         <br><br><br>
         <h1>Editar Tipo</h1>
         <br><br><br>
-        <form method="post">
+        <form id="editForm" method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Guardar</button>
+            <input type="hidden" name="descripcion_personalizada" id="descripcion_personalizada">
+            <button type="button" id="submitBtn">Guardar</button>
         </form>
     </div>
+
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            Swal.fire({
+                title: '¿Seguro que quieres editar este tipo?',
+                text: "Asegúrate de que los datos son correctos.",
+                input: 'textarea',
+                inputLabel: 'Ingresa la descripción personalizada',
+                inputPlaceholder: 'Escribe tu descripción aquí...',
+                inputAttributes: {
+                    'aria-label': 'Escribe tu descripción aquí'
+                },
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Guardar Cambios'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('descripcion_personalizada').value = result.value;
+                    document.getElementById('editForm').submit();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

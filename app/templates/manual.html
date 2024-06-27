@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manual de Usuario</title>
+<link rel="stylesheet" type="text/css" href="{% static 'css/barra.css' %}">
+
+</head>
+<body>
+    <div class="navbar">
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/acerca/">Acerca de</a></li>
+            <li><a href="http://www.uusmb.unam.mx/">Página de la Unidad</a></li>
+            <li><a href="/manual/">Manual de Usuario</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <br><br>
+        <h1>Manual de Usuario</h1>
+        <br>
+        <iframe src="{% static 'pdf/sistema.pdf' %}" width="100%" height="600px"></iframe>
+    </div>
+</body>
+</html>

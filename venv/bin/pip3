@@ -1,4 +1,4 @@
-#!/home/xeyt/Documents/residencia-proyect/venv/bin/python
+#!/home/xeyt/residencia-proyect/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
